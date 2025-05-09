@@ -1,113 +1,22 @@
 const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const fs = require('fs');
-
-// Initialize Express
+const bodyParser = require('body-parser');
 const app = express();
 
 // In-memory storage for OTPs and verification status
 const otpStore = {};
-const aadharVerificationStatus = {};
+const verificationStatus = {};
+
+// Middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('public'));
 
 // Generate a random 6-digit OTP
 function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
-// Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Mock data for testing
-const workers = [
-  { 
-    _id: '1', 
-    name: 'John Doe', 
-    email: 'john@example.com',
-    phone: '9876543210',
-    workerId: 'TN-UP-23-123456',
-    homeState: 'Uttar Pradesh',
-    district: 'Lucknow',
-    role: 'worker',
-    status: 'approved',
-    skills: ['Construction', 'Carpentry'],
-    isEmailVerified: true,
-    isAadharVerified: true,
-    aadharNumber: '123456789012'
-  },
-  { 
-    _id: '2', 
-    name: 'Raj Kumar', 
-    email: 'raj@example.com',
-    phone: '9876543211',
-    workerId: 'TN-BR-23-123457',
-    homeState: 'Bihar',
-    district: 'Patna',
-    role: 'worker',
-    status: 'pending', 
-    skills: ['Plumbing', 'Electrical'],
-    isEmailVerified: true,
-    isAadharVerified: false,
-    aadharNumber: '987654321098'
-  }
-];
-
-const tasks = [
-  {
-    _id: '1',
-    title: 'Building Construction Work',
-    description: 'Help with construction work at new site in Madurai',
-    dueDate: '2025-05-30T00:00:00.000Z',
-    priority: 'High',
-    status: 'pending',
-    location: 'Madurai',
-    assignedTo: '1',
-    assignedBy: '3',
-    createdAt: '2025-05-01T00:00:00.000Z'
-  },
-  {
-    _id: '2',
-    title: 'Road Repair Work',
-    description: 'Assist with road repair in Chennai central area',
-    dueDate: '2025-05-25T00:00:00.000Z',
-    priority: 'Medium',
-    status: 'in-progress',
-    location: 'Chennai',
-    assignedTo: '1',
-    assignedBy: '3',
-    createdAt: '2025-05-02T00:00:00.000Z'
-  }
-];
-
-const documents = [
-  {
-    _id: '1',
-    name: 'Aadhar Card',
-    type: 'identity',
-    fileUrl: '/uploads/dummy-aadhar.pdf',
-    filePath: 'uploads/dummy-aadhar.pdf',
-    status: 'approved',
-    user: '1',
-    createdAt: '2025-04-20T00:00:00.000Z'
-  },
-  {
-    _id: '2',
-    name: 'Work Certificate',
-    type: 'employment',
-    fileUrl: '/uploads/dummy-certificate.pdf',
-    filePath: 'uploads/dummy-certificate.pdf',
-    status: 'pending',
-    user: '1',
-    createdAt: '2025-05-01T00:00:00.000Z'
-  }
-];
-
-// Home page - Serve HTML
+// Home page
 app.get('/', (req, res) => {
   res.send(`
     <!DOCTYPE html>
@@ -132,7 +41,6 @@ app.get('/', (req, res) => {
       <div class="container">
         <nav>
           <a href="/">Home</a>
-          <a href="/api">API</a>
           <a href="/login">Login</a>
           <a href="/register">Register</a>
           <a href="/aadhar-verification">Aadhar Verification</a>
@@ -236,7 +144,7 @@ app.get('/register', (req, res) => {
     <body>
       <div class="container">
         <h1>Register as a Worker</h1>
-        <form action="/api/auth/register" method="post">
+        <form action="/register" method="post">
           <div class="form-group">
             <label for="name">Full Name</label>
             <input type="text" id="name" name="name" placeholder="Enter your full name" required>
@@ -371,44 +279,31 @@ app.get('/aadhar-verification', (req, res) => {
             return;
           }
           
-          // Send request to the API
-          fetch('/api/aadhar/request-otp', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ aadharNumber }),
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              // Move to step 2
-              document.getElementById('step1').classList.remove('active');
-              document.getElementById('step2').classList.add('active');
-              
-              // Show the OTP for testing purposes
-              console.log('Test OTP:', data.testOtp);
-              alert('For testing purposes, your OTP is: ' + data.testOtp);
-            } else {
-              document.getElementById('errorMessage').innerHTML = data.message;
-              document.getElementById('errorMessage').style.display = 'block';
-              setTimeout(() => {
-                document.getElementById('errorMessage').style.display = 'none';
-              }, 3000);
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            document.getElementById('errorMessage').innerHTML = 'An error occurred. Please try again.';
-            document.getElementById('errorMessage').style.display = 'block';
-            setTimeout(() => {
-              document.getElementById('errorMessage').style.display = 'none';
-            }, 3000);
-          });
+          // In a real app, this would make an API call to your backend
+          // Here we'll simulate the OTP request process
+          
+          // Hide error message if it's showing
+          document.getElementById('errorMessage').style.display = 'none';
+          
+          // Show loading state
+          const button = document.querySelector('#step1 button');
+          const originalText = button.innerHTML;
+          button.innerHTML = 'Sending OTP...';
+          button.disabled = true;
+          
+          // Simulate API call delay
+          setTimeout(() => {
+            // Move to step 2
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step2').classList.add('active');
+            
+            // Reset button
+            button.innerHTML = originalText;
+            button.disabled = false;
+          }, 1500);
         }
         
         function verifyOTP() {
-          const aadharNumber = document.getElementById('aadharNumber').value;
           const otp = document.getElementById('otpInput').value;
           
           if (otp.length !== 6 || !/^[0-9]{6}$/.test(otp)) {
@@ -420,83 +315,50 @@ app.get('/aadhar-verification', (req, res) => {
             return;
           }
           
-          // Send request to the API
-          fetch('/api/aadhar/verify-otp', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ aadharNumber, otp }),
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              // Hide step 2
-              document.getElementById('step2').classList.remove('active');
-              
-              // Show step 3 (success)
-              document.getElementById('step3').classList.add('active');
-              
-              // Hide back link
-              document.getElementById('backLink').style.display = 'none';
-            } else {
-              document.getElementById('errorMessage').innerHTML = data.message;
-              document.getElementById('errorMessage').style.display = 'block';
-              setTimeout(() => {
-                document.getElementById('errorMessage').style.display = 'none';
-              }, 3000);
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            document.getElementById('errorMessage').innerHTML = 'An error occurred. Please try again.';
-            document.getElementById('errorMessage').style.display = 'block';
-            setTimeout(() => {
-              document.getElementById('errorMessage').style.display = 'none';
-            }, 3000);
-          });
+          // Show loading state
+          const button = document.querySelector('#step2 button');
+          const originalText = button.innerHTML;
+          button.innerHTML = 'Verifying...';
+          button.disabled = true;
+          
+          // Simulate API call delay
+          setTimeout(() => {
+            // For demo purposes, we'll accept any 6-digit OTP
+            // In a real app, this would validate against a backend API
+            
+            // Hide step 2
+            document.getElementById('step2').classList.remove('active');
+            
+            // Show step 3 (success)
+            document.getElementById('step3').classList.add('active');
+            
+            // Hide back link
+            document.getElementById('backLink').style.display = 'none';
+            
+            // Reset button
+            button.innerHTML = originalText;
+            button.disabled = false;
+          }, 1500);
         }
         
         function resendOTP() {
-          const aadharNumber = document.getElementById('aadharNumber').value;
+          // Show loading state
+          const resendLink = document.querySelector('#step2 a');
+          const originalText = resendLink.innerHTML;
+          resendLink.innerHTML = 'Sending...';
           
-          // Send request to the API
-          fetch('/api/aadhar/request-otp', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ aadharNumber }),
-          })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              document.getElementById('successMessage').innerHTML = 'A new OTP has been sent to your mobile number.';
-              document.getElementById('successMessage').style.display = 'block';
-              
-              // Show the OTP for testing purposes
-              console.log('Test OTP:', data.testOtp);
-              alert('For testing purposes, your OTP is: ' + data.testOtp);
-              
-              setTimeout(() => {
-                document.getElementById('successMessage').style.display = 'none';
-              }, 3000);
-            } else {
-              document.getElementById('errorMessage').innerHTML = data.message;
-              document.getElementById('errorMessage').style.display = 'block';
-              setTimeout(() => {
-                document.getElementById('errorMessage').style.display = 'none';
-              }, 3000);
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            document.getElementById('errorMessage').innerHTML = 'An error occurred. Please try again.';
-            document.getElementById('errorMessage').style.display = 'block';
+          // Simulate API call delay
+          setTimeout(() => {
+            document.getElementById('successMessage').innerHTML = 'A new OTP has been sent to your mobile number.';
+            document.getElementById('successMessage').style.display = 'block';
+            
+            // Reset link
+            resendLink.innerHTML = originalText;
+            
             setTimeout(() => {
-              document.getElementById('errorMessage').style.display = 'none';
+              document.getElementById('successMessage').style.display = 'none';
             }, 3000);
-          });
+          }, 1500);
         }
       </script>
     </body>
@@ -504,120 +366,7 @@ app.get('/aadhar-verification', (req, res) => {
   `);
 });
 
-// API Routes
-app.get('/api', (req, res) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>API Documentation - TN Migrant Worker Portal</title>
-      <style>
-        body { font-family: Arial; padding: 20px; background-color: #f0f9ff; line-height: 1.6; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1, h2, h3 { color: #0369a1; }
-        pre { background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; }
-        .endpoint { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
-        .method { display: inline-block; padding: 5px 10px; border-radius: 4px; font-weight: bold; margin-right: 10px; }
-        .get { background: #d1ecf1; color: #0c5460; }
-        .post { background: #d4edda; color: #155724; }
-        .url { font-family: monospace; background: #f8f9fa; padding: 5px; border-radius: 4px; }
-        .back-link { display: block; margin-top: 20px; text-align: center; color: #0369a1; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <h1>API Documentation</h1>
-        <p>This page documents the available API endpoints for the Tamil Nadu Migrant Worker Portal.</p>
-        
-        <div class="endpoint">
-          <h2>User Endpoints</h2>
-          
-          <h3>Get Current User</h3>
-          <div>
-            <span class="method get">GET</span>
-            <span class="url">/api/users/me</span>
-          </div>
-          <p>Returns information about the currently authenticated user.</p>
-          <pre>{
-  "_id": "1",
-  "name": "John Doe",
-  "email": "john@example.com",
-  "workerId": "TN-UP-23-123456",
-  "isAadharVerified": true
-}</pre>
-        </div>
-        
-        <div class="endpoint">
-          <h2>Authentication Endpoints</h2>
-          
-          <h3>Login</h3>
-          <div>
-            <span class="method post">POST</span>
-            <span class="url">/api/auth/login</span>
-          </div>
-          <p>Authenticates a user and returns a token.</p>
-          <pre>{
-  "email": "john@example.com",
-  "password": "password"
-}</pre>
-          
-          <h3>Register</h3>
-          <div>
-            <span class="method post">POST</span>
-            <span class="url">/api/auth/register</span>
-          </div>
-          <p>Registers a new worker and returns a unique worker ID.</p>
-        </div>
-        
-        <div class="endpoint">
-          <h2>Aadhar Verification Endpoints</h2>
-          
-          <h3>Request OTP</h3>
-          <div>
-            <span class="method post">POST</span>
-            <span class="url">/api/aadhar/request-otp</span>
-          </div>
-          <p>Sends an OTP to the mobile number linked with the provided Aadhar number.</p>
-          <pre>{
-  "aadharNumber": "123456789012"
-}</pre>
-          
-          <h3>Verify OTP</h3>
-          <div>
-            <span class="method post">POST</span>
-            <span class="url">/api/aadhar/verify-otp</span>
-          </div>
-          <p>Verifies the OTP for the given Aadhar number.</p>
-          <pre>{
-  "aadharNumber": "123456789012",
-  "otp": "123456"
-}</pre>
-        </div>
-        
-        <a href="/" class="back-link">← Back to Home</a>
-      </div>
-    </body>
-    </html>
-  `);
-});
-
-app.get('/api/users/me', (req, res) => {
-  res.json(workers[0]);
-});
-
-app.get('/api/users/profile', (req, res) => {
-  res.json(workers[0]);
-});
-
-app.get('/api/tasks', (req, res) => {
-  res.json(tasks);
-});
-
-app.get('/api/documents', (req, res) => {
-  res.json(documents);
-});
-
-// Aadhar Verification APIs
+// Handle Aadhar verification API endpoints (mock implementation)
 app.post('/api/aadhar/request-otp', (req, res) => {
   const { aadharNumber } = req.body;
   
@@ -649,20 +398,14 @@ app.post('/api/aadhar/verify-otp', (req, res) => {
     return res.status(400).json({ success: false, message: 'Aadhar number and OTP are required' });
   }
   
-  // Check if the OTP matches
+  // Check if the OTP matches (in a real app, this would also check expiry)
   const storedOtp = otpStore[aadharNumber];
   if (!storedOtp || storedOtp !== otp) {
     return res.status(400).json({ success: false, message: 'Invalid OTP' });
   }
   
   // Mark Aadhar as verified
-  aadharVerificationStatus[aadharNumber] = true;
-  
-  // Update worker record if it exists
-  const workerIndex = workers.findIndex(w => w.aadharNumber === aadharNumber);
-  if (workerIndex !== -1) {
-    workers[workerIndex].isAadharVerified = true;
-  }
+  verificationStatus[aadharNumber] = true;
   
   // Clear the OTP after successful verification
   delete otpStore[aadharNumber];
@@ -671,48 +414,6 @@ app.post('/api/aadhar/verify-otp', (req, res) => {
     success: true,
     message: 'Aadhar verification successful',
     status: 'verified'
-  });
-});
-
-app.post('/api/auth/login', (req, res) => {
-  const { email, password } = req.body;
-  
-  // Simple mock authentication
-  if (email === 'john@example.com' && password === 'password') {
-    res.json({
-      success: true,
-      token: 'dummy-token-for-testing',
-      user: workers[0]
-    });
-  } else {
-    res.status(401).json({
-      success: false,
-      message: 'Invalid credentials'
-    });
-  }
-});
-
-app.post('/api/auth/register', (req, res) => {
-  const { name, email, phone, aadhar, homeState } = req.body;
-  
-  // In a real app, we would save this information to a database
-  // For now, we'll just return a successful response
-  
-  // Generate a worker ID
-  const stateCode = homeState ? homeState.substring(0, 2).toUpperCase() : 'TN';
-  const workerId = 'TN-' + stateCode + '-23-' + Math.floor(100000 + Math.random() * 900000);
-  
-  res.status(201).json({
-    success: true,
-    message: 'User registered successfully! Please verify your Aadhar to complete registration.',
-    workerId: workerId
-  });
-});
-
-app.post('/api/auth/verify-otp', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'Email verified successfully! You can now login.'
   });
 });
 
@@ -725,28 +426,8 @@ app.use((req, res) => {
   `);
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  
-  const statusCode = err.statusCode || 500;
-  const message = err.message || 'Internal Server Error';
-  
-  res.status(statusCode).json({
-    success: false,
-    message,
-    stack: process.env.NODE_ENV === 'production' ? null : err.stack
-  });
+// Start the server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Test server running on port ${PORT}`);
 });
-
-// Server
-const PORT = process.env.PORT || 8000;
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
-// Set up upload directory
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
