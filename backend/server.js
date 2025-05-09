@@ -2104,6 +2104,926 @@ app.post('/api/auth/verify-otp', (req, res) => {
   });
 });
 
+// Individual job detail page
+app.get('/jobs/:id', (req, res) => {
+  const jobId = parseInt(req.params.id);
+  const job = jobs.find(j => j.id === jobId);
+  
+  if (!job) {
+    return res.status(404).send(`
+      <h1>404 - Job Not Found</h1>
+      <p>The job you are looking for does not exist.</p>
+      <a href="/jobs">Back to Jobs</a>
+    `);
+  }
+  
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>${job.title} - TN Migrant Worker Portal</title>
+      <style>
+        body { 
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+          padding: 0; 
+          margin: 0;
+          background-image: url('https://images.unsplash.com/photo-1588097261099-b4bae4aa0ed0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80');
+          background-size: cover;
+          background-attachment: fixed;
+          background-position: center;
+          background-repeat: no-repeat;
+          line-height: 1.6;
+          color: #333;
+        }
+        .overlay {
+          background-color: rgba(255, 255, 255, 0.9);
+          min-height: 100vh;
+          padding: 20px;
+        }
+        .container { 
+          max-width: 1100px; 
+          margin: 0 auto; 
+          background: white; 
+          padding: 30px; 
+          border-radius: 12px; 
+          box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+          margin-bottom: 30px;
+        }
+        h1, h2 { 
+          color: #114B5F; 
+        }
+        h3 {
+          color: #028090;
+        }
+        nav { 
+          background-color: #114B5F; 
+          padding: 15px; 
+          border-radius: 8px; 
+          margin-bottom: 30px; 
+          text-align: center; 
+        }
+        nav a { 
+          color: white; 
+          text-decoration: none; 
+          margin: 0 15px; 
+          font-weight: bold; 
+          transition: color 0.3s;
+        }
+        nav a:hover {
+          color: #E4FDE1;
+        }
+        .job-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 30px;
+          flex-wrap: wrap;
+        }
+        .job-title-area {
+          flex: 1;
+          min-width: 60%;
+        }
+        .job-title-area h1 {
+          margin-bottom: 5px;
+          margin-top: 0;
+        }
+        .apply-btn-area {
+          margin: 20px 0;
+        }
+        .btn { 
+          display: inline-block; 
+          background-color: #F45B69; 
+          color: white; 
+          padding: 14px 30px; 
+          border-radius: 50px; 
+          text-decoration: none; 
+          font-weight: bold; 
+          margin: 10px 0;
+          transition: all 0.3s;
+          border: none;
+          cursor: pointer;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+          background-color: #E63946;
+        }
+        .btn-primary { 
+          background-color: #028090; 
+        }
+        .btn-primary:hover {
+          background-color: #114B5F;
+        }
+        .job-meta {
+          display: flex;
+          margin: 20px 0;
+          font-size: 1rem;
+          color: #666;
+          flex-wrap: wrap;
+          background: #f9f9f9;
+          padding: 20px;
+          border-radius: 8px;
+        }
+        .job-meta-item {
+          margin-right: 30px;
+          margin-bottom: 10px;
+          display: flex;
+          align-items: center;
+        }
+        .job-meta-item svg {
+          margin-right: 10px;
+          height: 20px;
+          width: 20px;
+          color: #028090;
+        }
+        .job-description {
+          margin: 30px 0;
+          line-height: 1.8;
+        }
+        .section-title {
+          color: #114B5F;
+          border-bottom: 2px solid #e1e1e1;
+          padding-bottom: 10px;
+          margin-top: 40px;
+        }
+        .skills-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin: 20px 0;
+        }
+        .skill-tag {
+          background: #e1f5f7;
+          padding: 8px 15px;
+          border-radius: 50px;
+          color: #028090;
+          font-size: 0.9rem;
+        }
+        .company-box {
+          background: #f9f9f9;
+          padding: 20px;
+          border-radius: 8px;
+          margin: 30px 0;
+        }
+        .application-form {
+          background: #f9f9f9;
+          padding: 25px;
+          border-radius: 8px;
+          margin: 30px 0;
+        }
+        .form-group {
+          margin-bottom: 20px;
+        }
+        .form-group label {
+          display: block;
+          margin-bottom: 8px;
+          font-weight: bold;
+          color: #114B5F;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+          width: 100%;
+          padding: 12px;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          font-size: 16px;
+          font-family: inherit;
+        }
+        .form-group textarea {
+          min-height: 120px;
+        }
+        .required-text {
+          color: #F45B69;
+          font-size: 0.9rem;
+          margin-bottom: 20px;
+        }
+        .back-link { 
+          display: block; 
+          margin-top: 30px; 
+          color: #028090; 
+          text-decoration: none;
+        }
+        .back-link:hover {
+          text-decoration: underline;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="overlay">
+        <div class="container">
+          <nav>
+            <a href="/">Home</a>
+            <a href="/jobs">Jobs</a>
+            <a href="/schemes">Gov. Schemes</a>
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+            <a href="/aadhar-verification">Aadhar Verification</a>
+          </nav>
+
+          <div class="job-header">
+            <div class="job-title-area">
+              <h1>${job.title}</h1>
+              <div style="color: #666;">${job.company} | ${job.location}</div>
+            </div>
+          </div>
+
+          <div class="job-meta">
+            <div class="job-meta-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <span>${job.location}</span>
+            </div>
+            <div class="job-meta-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <span>${job.type}</span>
+            </div>
+            <div class="job-meta-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+              <span>${job.company}</span>
+            </div>
+            <div class="job-meta-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              <span>${job.salary}</span>
+            </div>
+            <div class="job-meta-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <span>Posted on: ${job.postedDate}</span>
+            </div>
+          </div>
+
+          <div class="apply-btn-area">
+            <a href="#application-form" class="btn btn-primary">Apply Now</a>
+          </div>
+
+          <div class="job-description">
+            <h2 class="section-title">Job Description</h2>
+            <p>${job.description}</p>
+            <p>This position offers competitive compensation along with opportunities for career advancement. We provide a supportive work environment with all necessary training and safety measures.</p>
+            
+            <h2 class="section-title">Required Skills</h2>
+            <div class="skills-list">
+              ${job.skills.map(skill => `<div class="skill-tag">${skill}</div>`).join('')}
+            </div>
+          </div>
+
+          <div class="company-box">
+            <h2>About ${job.company}</h2>
+            <p>${job.company} is a leading employer in the ${job.skills[0].toLowerCase()} sector with a commitment to fair wages and ethical employment practices. We specialize in providing quality services while ensuring worker welfare.</p>
+          </div>
+
+          <div id="application-form" class="application-form">
+            <h2>Apply for this position</h2>
+            <p class="required-text">* Required fields</p>
+            
+            <form action="/api/jobs/${job.id}/apply" method="post">
+              <div class="form-group">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" name="name" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="phone">Phone Number *</label>
+                <input type="tel" id="phone" name="phone" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="workerId">Worker ID (if registered)</label>
+                <input type="text" id="workerId" name="workerId">
+              </div>
+              
+              <div class="form-group">
+                <label for="experience">Years of Experience *</label>
+                <select id="experience" name="experience" required>
+                  <option value="">Select experience</option>
+                  <option value="0-1">Less than 1 year</option>
+                  <option value="1-3">1-3 years</option>
+                  <option value="3-5">3-5 years</option>
+                  <option value="5+">More than 5 years</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="message">Why are you interested in this position? *</label>
+                <textarea id="message" name="message" required></textarea>
+              </div>
+              
+              <div class="form-group">
+                <button type="submit" class="btn btn-primary">Submit Application</button>
+              </div>
+            </form>
+          </div>
+          
+          <a href="/jobs" class="back-link">← Back to job listings</a>
+        </div>
+      </div>
+    </body>
+    </html>
+  `);
+});
+
+// Individual scheme detail page
+app.get('/schemes/:id', (req, res) => {
+  const schemeId = parseInt(req.params.id);
+  const scheme = schemes.find(s => s.id === schemeId);
+  
+  if (!scheme) {
+    return res.status(404).send(`
+      <h1>404 - Scheme Not Found</h1>
+      <p>The government scheme you are looking for does not exist.</p>
+      <a href="/schemes">Back to Schemes</a>
+    `);
+  }
+  
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>${scheme.title} - TN Migrant Worker Portal</title>
+      <style>
+        body { 
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+          padding: 0; 
+          margin: 0;
+          background-image: url('https://images.unsplash.com/photo-1588097261099-b4bae4aa0ed0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80');
+          background-size: cover;
+          background-attachment: fixed;
+          background-position: center;
+          background-repeat: no-repeat;
+          line-height: 1.6;
+          color: #333;
+        }
+        .overlay {
+          background-color: rgba(255, 255, 255, 0.9);
+          min-height: 100vh;
+          padding: 20px;
+        }
+        .container { 
+          max-width: 1100px; 
+          margin: 0 auto; 
+          background: white; 
+          padding: 30px; 
+          border-radius: 12px; 
+          box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+          margin-bottom: 30px;
+        }
+        h1, h2 { 
+          color: #114B5F; 
+        }
+        h3 {
+          color: #028090;
+        }
+        nav { 
+          background-color: #114B5F; 
+          padding: 15px; 
+          border-radius: 8px; 
+          margin-bottom: 30px; 
+          text-align: center; 
+        }
+        nav a { 
+          color: white; 
+          text-decoration: none; 
+          margin: 0 15px; 
+          font-weight: bold; 
+          transition: color 0.3s;
+        }
+        nav a:hover {
+          color: #E4FDE1;
+        }
+        .scheme-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 30px;
+          flex-wrap: wrap;
+        }
+        .scheme-title-area {
+          flex: 1;
+          min-width: 60%;
+        }
+        .scheme-title-area h1 {
+          margin-bottom: 5px;
+          margin-top: 0;
+        }
+        .apply-btn-area {
+          margin: 20px 0;
+        }
+        .btn { 
+          display: inline-block; 
+          background-color: #F45B69; 
+          color: white; 
+          padding: 14px 30px; 
+          border-radius: 50px; 
+          text-decoration: none; 
+          font-weight: bold; 
+          margin: 10px 0;
+          transition: all 0.3s;
+          border: none;
+          cursor: pointer;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+          background-color: #E63946;
+        }
+        .btn-primary { 
+          background-color: #028090; 
+        }
+        .btn-primary:hover {
+          background-color: #114B5F;
+        }
+        .scheme-meta {
+          display: flex;
+          margin: 20px 0;
+          font-size: 1rem;
+          color: #666;
+          flex-wrap: wrap;
+          background: #f9f9f9;
+          padding: 20px;
+          border-radius: 8px;
+        }
+        .scheme-meta-item {
+          margin-right: 30px;
+          margin-bottom: 10px;
+          display: flex;
+          align-items: center;
+        }
+        .scheme-meta-item svg {
+          margin-right: 10px;
+          height: 20px;
+          width: 20px;
+          color: #028090;
+        }
+        .scheme-description {
+          margin: 30px 0;
+          line-height: 1.8;
+        }
+        .section-title {
+          color: #114B5F;
+          border-bottom: 2px solid #e1e1e1;
+          padding-bottom: 10px;
+          margin-top: 40px;
+        }
+        .document-list {
+          margin: 20px 0;
+        }
+        .document-item {
+          display: flex;
+          align-items: center;
+          margin-bottom: 10px;
+        }
+        .document-item svg {
+          margin-right: 10px;
+          color: #028090;
+        }
+        .eligibility-box {
+          background: #f9f9f9;
+          padding: 20px;
+          border-radius: 8px;
+          margin: 30px 0;
+        }
+        .step-box {
+          display: flex;
+          margin-bottom: 15px;
+        }
+        .step-number {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 40px;
+          height: 40px;
+          background-color: #028090;
+          color: white;
+          border-radius: 50%;
+          margin-right: 15px;
+          flex-shrink: 0;
+          font-weight: bold;
+        }
+        .step-content {
+          flex: 1;
+        }
+        .application-form {
+          background: #f9f9f9;
+          padding: 25px;
+          border-radius: 8px;
+          margin: 30px 0;
+        }
+        .form-group {
+          margin-bottom: 20px;
+        }
+        .form-group label {
+          display: block;
+          margin-bottom: 8px;
+          font-weight: bold;
+          color: #114B5F;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+          width: 100%;
+          padding: 12px;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          font-size: 16px;
+          font-family: inherit;
+        }
+        .form-group textarea {
+          min-height: 120px;
+        }
+        .required-text {
+          color: #F45B69;
+          font-size: 0.9rem;
+          margin-bottom: 20px;
+        }
+        .back-link { 
+          display: block; 
+          margin-top: 30px; 
+          color: #028090; 
+          text-decoration: none;
+        }
+        .back-link:hover {
+          text-decoration: underline;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="overlay">
+        <div class="container">
+          <nav>
+            <a href="/">Home</a>
+            <a href="/jobs">Jobs</a>
+            <a href="/schemes">Gov. Schemes</a>
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+            <a href="/aadhar-verification">Aadhar Verification</a>
+          </nav>
+
+          <div class="scheme-header">
+            <div class="scheme-title-area">
+              <h1>${scheme.title}</h1>
+              <div style="color: #666;">${scheme.provider}</div>
+            </div>
+          </div>
+
+          <div class="scheme-meta">
+            <div class="scheme-meta-item">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path></svg>
+              <span>${scheme.provider}</span>
+            </div>
+          </div>
+
+          <div class="apply-btn-area">
+            <a href="#eligibility-check" class="btn btn-primary">Check Eligibility</a>
+            <a href="${scheme.applicationLink}" target="_blank" class="btn">Official Website</a>
+          </div>
+
+          <div class="scheme-description">
+            <h2 class="section-title">Scheme Description</h2>
+            <p>${scheme.description}</p>
+            
+            <h2 class="section-title">Benefits</h2>
+            <p>${scheme.benefits}</p>
+            
+            <h2 class="section-title">Eligibility Criteria</h2>
+            <p>${scheme.eligibility}</p>
+            
+            <h2 class="section-title">Required Documents</h2>
+            <div class="document-list">
+              ${scheme.documents.map(doc => `
+                <div class="document-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>${doc}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="eligibility-box">
+            <h2>How to Apply</h2>
+            <div class="step-box">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <h3>Check eligibility</h3>
+                <p>Determine if you meet all eligibility criteria mentioned above.</p>
+              </div>
+            </div>
+            <div class="step-box">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <h3>Gather documents</h3>
+                <p>Collect all required documents mentioned in the document list.</p>
+              </div>
+            </div>
+            <div class="step-box">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <h3>Visit official website</h3>
+                <p>Go to the <a href="${scheme.applicationLink}" target="_blank">official website</a> or nearest government office.</p>
+              </div>
+            </div>
+            <div class="step-box">
+              <div class="step-number">4</div>
+              <div class="step-content">
+                <h3>Submit application</h3>
+                <p>Fill out the application form and submit it with all required documents.</p>
+              </div>
+            </div>
+          </div>
+
+          <div id="eligibility-check" class="application-form">
+            <h2>Check Your Eligibility</h2>
+            <p class="required-text">* Required fields</p>
+            
+            <form action="/api/schemes/${scheme.id}/check-eligibility" method="post">
+              <div class="form-group">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" name="name" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="phone">Phone Number *</label>
+                <input type="tel" id="phone" name="phone" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="aadhar">Aadhar Number *</label>
+                <input type="text" id="aadhar" name="aadhar" pattern="[0-9]{12}" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="income">Annual Income (in ₹) *</label>
+                <input type="number" id="income" name="income" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="district">District *</label>
+                <select id="district" name="district" required>
+                  <option value="">Select district</option>
+                  <option value="Chennai">Chennai</option>
+                  <option value="Coimbatore">Coimbatore</option>
+                  <option value="Madurai">Madurai</option>
+                  <option value="Salem">Salem</option>
+                  <option value="Tiruchirappalli">Tiruchirappalli</option>
+                  <option value="Tirunelveli">Tirunelveli</option>
+                  <option value="Vellore">Vellore</option>
+                  <option value="Thanjavur">Thanjavur</option>
+                  <option value="Dindigul">Dindigul</option>
+                  <option value="Erode">Erode</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <button type="submit" class="btn btn-primary">Check Eligibility</button>
+              </div>
+            </form>
+          </div>
+          
+          <a href="/schemes" class="back-link">← Back to government schemes</a>
+        </div>
+      </div>
+    </body>
+    </html>
+  `);
+});
+
+// API endpoints for job applications and scheme eligibility checks
+app.post('/api/jobs/:id/apply', (req, res) => {
+  const jobId = parseInt(req.params.id);
+  const job = jobs.find(j => j.id === jobId);
+  
+  if (!job) {
+    return res.status(404).json({ success: false, message: 'Job not found' });
+  }
+  
+  // In a real app, we would save the application to a database
+  // For now, just return a success response
+  res.status(200).send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Application Submitted - TN Migrant Worker Portal</title>
+      <style>
+        body { 
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+          padding: 0; 
+          margin: 0;
+          background-image: url('https://images.unsplash.com/photo-1588097261099-b4bae4aa0ed0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80');
+          background-size: cover;
+          background-attachment: fixed;
+          background-position: center;
+          background-repeat: no-repeat;
+          line-height: 1.6;
+          color: #333;
+        }
+        .overlay {
+          background-color: rgba(255, 255, 255, 0.9);
+          min-height: 100vh;
+          padding: 20px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        .container { 
+          max-width: 800px; 
+          margin: 0 auto; 
+          background: white; 
+          padding: 40px; 
+          border-radius: 12px; 
+          box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+          text-align: center;
+        }
+        h1 { 
+          color: #114B5F; 
+        }
+        .success-icon {
+          color: #28a745;
+          font-size: 5rem;
+          margin-bottom: 20px;
+        }
+        .btn { 
+          display: inline-block; 
+          background-color: #028090; 
+          color: white; 
+          padding: 12px 28px; 
+          border-radius: 50px; 
+          text-decoration: none; 
+          font-weight: bold; 
+          margin: 20px 10px;
+          transition: all 0.3s;
+          border: none;
+          cursor: pointer;
+        }
+        .btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+          background-color: #114B5F;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="overlay">
+        <div class="container">
+          <div class="success-icon">✓</div>
+          <h1>Application Submitted Successfully!</h1>
+          <p>Thank you for applying to the ${job.title} position at ${job.company}. Your application has been received and is under review.</p>
+          <p>We will contact you via email or phone regarding the next steps in the hiring process.</p>
+          <p>Application Reference Number: <strong>JOB-${job.id}-${Date.now().toString().slice(-6)}</strong></p>
+          <a href="/jobs" class="btn">Back to Job Listings</a>
+          <a href="/" class="btn">Home</a>
+        </div>
+      </div>
+    </body>
+    </html>
+  `);
+});
+
+app.post('/api/schemes/:id/check-eligibility', (req, res) => {
+  const schemeId = parseInt(req.params.id);
+  const scheme = schemes.find(s => s.id === schemeId);
+  
+  if (!scheme) {
+    return res.status(404).json({ success: false, message: 'Scheme not found' });
+  }
+  
+  // In a real app, we would check eligibility based on the submitted data
+  // For now, just return a success response with mock eligibility results
+  const eligible = Math.random() > 0.2; // 80% chance of being eligible for demo purposes
+  
+  res.status(200).send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Eligibility Check Result - TN Migrant Worker Portal</title>
+      <style>
+        body { 
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+          padding: 0; 
+          margin: 0;
+          background-image: url('https://images.unsplash.com/photo-1588097261099-b4bae4aa0ed0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80');
+          background-size: cover;
+          background-attachment: fixed;
+          background-position: center;
+          background-repeat: no-repeat;
+          line-height: 1.6;
+          color: #333;
+        }
+        .overlay {
+          background-color: rgba(255, 255, 255, 0.9);
+          min-height: 100vh;
+          padding: 20px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        .container { 
+          max-width: 800px; 
+          margin: 0 auto; 
+          background: white; 
+          padding: 40px; 
+          border-radius: 12px; 
+          box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+          text-align: center;
+        }
+        h1 { 
+          color: #114B5F; 
+        }
+        .icon {
+          font-size: 5rem;
+          margin-bottom: 20px;
+        }
+        .success-icon {
+          color: #28a745;
+        }
+        .warning-icon {
+          color: #ffc107;
+        }
+        .btn { 
+          display: inline-block; 
+          background-color: #028090; 
+          color: white; 
+          padding: 12px 28px; 
+          border-radius: 50px; 
+          text-decoration: none; 
+          font-weight: bold; 
+          margin: 20px 10px;
+          transition: all 0.3s;
+          border: none;
+          cursor: pointer;
+        }
+        .btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+          background-color: #114B5F;
+        }
+        .eligibility-details {
+          background: #f9f9f9;
+          padding: 20px;
+          border-radius: 8px;
+          margin: 20px 0;
+          text-align: left;
+        }
+        .detail-item {
+          margin-bottom: 10px;
+          padding-bottom: 10px;
+          border-bottom: 1px solid #eee;
+        }
+        .detail-label {
+          font-weight: bold;
+          color: #114B5F;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="overlay">
+        <div class="container">
+          <div class="icon ${eligible ? 'success-icon' : 'warning-icon'}">${eligible ? '✓' : '!'}</div>
+          <h1>${eligible ? 'You are Eligible!' : 'You may not be Eligible'}</h1>
+          <p>${eligible 
+            ? `Based on the information provided, you are eligible for the ${scheme.title}.` 
+            : `Based on the information provided, you may not meet all eligibility criteria for the ${scheme.title}.`}</p>
+          
+          <div class="eligibility-details">
+            <h2>Eligibility Details</h2>
+            <div class="detail-item">
+              <div class="detail-label">Scheme:</div>
+              <div>${scheme.title}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Provider:</div>
+              <div>${scheme.provider}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Eligibility Criteria:</div>
+              <div>${scheme.eligibility}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Required Documents:</div>
+              <div>${scheme.documents.join(', ')}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Next Steps:</div>
+              <div>${eligible 
+                ? `Proceed to the <a href="${scheme.applicationLink}" target="_blank">official website</a> to complete your application or visit your nearest government office with the required documents.` 
+                : `You may want to review the eligibility criteria and check if there are any other schemes you might qualify for. If you believe this determination is incorrect, please visit your nearest government office for assistance.`}</div>
+            </div>
+          </div>
+          
+          <a href="/schemes" class="btn">Back to Schemes</a>
+          <a href="/" class="btn">Home</a>
+        </div>
+      </div>
+    </body>
+    </html>
+  `);
+});
+
 // Handle 404 routes
 app.use((req, res) => {
   res.status(404).send(`
