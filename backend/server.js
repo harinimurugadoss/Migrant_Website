@@ -673,6 +673,873 @@ app.get('/register', (req, res) => {
   `);
 });
 
+// Jobs listing page
+app.get('/jobs', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Job Listings - TN Migrant Worker Portal</title>
+      <style>
+        body { 
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+          padding: 0; 
+          margin: 0;
+          background-image: url('https://images.unsplash.com/photo-1588097261099-b4bae4aa0ed0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80');
+          background-size: cover;
+          background-attachment: fixed;
+          background-position: center;
+          background-repeat: no-repeat;
+          line-height: 1.6;
+          color: #333;
+        }
+        .overlay {
+          background-color: rgba(255, 255, 255, 0.9);
+          min-height: 100vh;
+          padding: 20px;
+        }
+        .container { 
+          max-width: 1100px; 
+          margin: 0 auto; 
+          background: white; 
+          padding: 30px; 
+          border-radius: 12px; 
+          box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+          margin-bottom: 30px;
+        }
+        h1, h2 { 
+          color: #114B5F; 
+          text-align: center; 
+        }
+        h3 {
+          color: #028090;
+        }
+        nav { 
+          background-color: #114B5F; 
+          padding: 15px; 
+          border-radius: 8px; 
+          margin-bottom: 30px; 
+          text-align: center; 
+        }
+        nav a { 
+          color: white; 
+          text-decoration: none; 
+          margin: 0 15px; 
+          font-weight: bold; 
+          transition: color 0.3s;
+        }
+        nav a:hover {
+          color: #E4FDE1;
+        }
+        .hero { 
+          background: linear-gradient(135deg, #114B5F, #028090); 
+          color: white; 
+          padding: 40px 20px; 
+          text-align: center; 
+          border-radius: 12px; 
+          margin-bottom: 40px; 
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .btn { 
+          display: inline-block; 
+          background-color: #F45B69; 
+          color: white; 
+          padding: 12px 28px; 
+          border-radius: 50px; 
+          text-decoration: none; 
+          font-weight: bold; 
+          margin: 10px;
+          transition: all 0.3s;
+          border: none;
+          cursor: pointer;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+          background-color: #E63946;
+        }
+        .btn-primary { 
+          background-color: #028090; 
+        }
+        .btn-primary:hover {
+          background-color: #114B5F;
+        }
+        .section-title {
+          position: relative;
+          margin-bottom: 40px;
+          padding-bottom: 15px;
+        }
+        .section-title:after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 100px;
+          height: 3px;
+          background-color: #028090;
+        }
+        .search-box {
+          margin-bottom: 40px;
+          display: flex;
+          justify-content: center;
+        }
+        .search-box input {
+          padding: 12px 20px;
+          width: 60%;
+          border: 1px solid #ddd;
+          border-top-left-radius: 50px;
+          border-bottom-left-radius: 50px;
+          font-size: 1rem;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+          border-right: none;
+        }
+        .search-box button {
+          background: #028090;
+          color: white;
+          border: none;
+          padding: 0 25px;
+          border-top-right-radius: 50px;
+          border-bottom-right-radius: 50px;
+          cursor: pointer;
+          transition: background-color 0.3s;
+        }
+        .search-box button:hover {
+          background: #114B5F;
+        }
+        .filters {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 15px;
+          margin-bottom: 30px;
+          justify-content: center;
+        }
+        .filter-group {
+          display: flex;
+          align-items: center;
+          background: #f5f5f5;
+          padding: 8px 15px;
+          border-radius: 50px;
+        }
+        .filter-group label {
+          margin-right: 10px;
+          font-weight: bold;
+          color: #114B5F;
+        }
+        .filter-group select {
+          border: none;
+          background: transparent;
+          padding: 5px;
+          border-radius: 4px;
+          color: #333;
+        }
+        .job-list {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 20px;
+          margin-bottom: 40px;
+        }
+        .job-card {
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+          padding: 25px;
+          transition: transform 0.3s, box-shadow 0.3s;
+          display: flex;
+          flex-direction: column;
+          border: 1px solid #eee;
+        }
+        .job-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+        .job-card h3 {
+          margin-top: 0;
+          color: #114B5F;
+        }
+        .job-meta {
+          display: flex;
+          margin-bottom: 10px;
+          font-size: 0.9rem;
+          color: #666;
+          flex-wrap: wrap;
+        }
+        .job-meta > div {
+          margin-right: 15px;
+          display: flex;
+          align-items: center;
+          margin-bottom: 5px;
+        }
+        .job-meta svg {
+          margin-right: 5px;
+          height: 16px;
+          width: 16px;
+        }
+        .btn-sm {
+          padding: 8px 20px;
+          font-size: 0.9rem;
+          margin-top: auto;
+          align-self: start;
+        }
+        .pagination {
+          display: flex;
+          justify-content: center;
+          margin-top: 40px;
+          margin-bottom: 20px;
+        }
+        .pagination a {
+          display: inline-block;
+          padding: 8px 16px;
+          margin: 0 5px;
+          border-radius: 4px;
+          background: #f5f5f5;
+          color: #333;
+          text-decoration: none;
+          transition: all 0.2s;
+        }
+        .pagination a:hover, .pagination a.active {
+          background: #028090;
+          color: white;
+        }
+        .back-link { 
+          display: block; 
+          margin-top: 20px; 
+          text-align: center; 
+          color: #0369a1; 
+        }
+      </style>
+    </head>
+    <body>
+      <div class="overlay">
+        <div class="container">
+          <nav>
+            <a href="/">Home</a>
+            <a href="/jobs">Jobs</a>
+            <a href="/schemes">Gov. Schemes</a>
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+            <a href="/aadhar-verification">Aadhar Verification</a>
+          </nav>
+
+          <div class="hero">
+            <h1>Available Jobs</h1>
+            <p>Find suitable employment opportunities across Tamil Nadu</p>
+          </div>
+
+          <div class="search-box">
+            <input type="text" placeholder="Search for jobs by title, location, or skill...">
+            <button>Search</button>
+          </div>
+
+          <div class="filters">
+            <div class="filter-group">
+              <label>Location:</label>
+              <select>
+                <option value="">All Locations</option>
+                <option value="Chennai">Chennai</option>
+                <option value="Coimbatore">Coimbatore</option>
+                <option value="Madurai">Madurai</option>
+                <option value="Salem">Salem</option>
+                <option value="Tiruchirapalli">Tiruchirapalli</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Job Type:</label>
+              <select>
+                <option value="">All Types</option>
+                <option value="Full-time">Full-time</option>
+                <option value="Part-time">Part-time</option>
+                <option value="Contract">Contract</option>
+                <option value="Seasonal">Seasonal</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Salary Range:</label>
+              <select>
+                <option value="">Any Salary</option>
+                <option value="0-10000">Under ₹10,000/month</option>
+                <option value="10000-15000">₹10,000 - ₹15,000/month</option>
+                <option value="15000-20000">₹15,000 - ₹20,000/month</option>
+                <option value="20000+">Above ₹20,000/month</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="job-list">
+            <div class="job-card">
+              <h3>Construction Worker</h3>
+              <div class="job-meta">
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  Chennai
+                </div>
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  Full-time
+                </div>
+              </div>
+              <p>We are looking for experienced construction workers for our new residential project in Chennai. Daily wages with overtime benefits.</p>
+              <div class="job-meta">
+                <div>Salary: ₹500-600/day</div>
+              </div>
+              <a href="/jobs/1" class="btn btn-sm">Apply Now</a>
+            </div>
+
+            <div class="job-card">
+              <h3>Factory Worker</h3>
+              <div class="job-meta">
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  Coimbatore
+                </div>
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  Full-time
+                </div>
+              </div>
+              <p>Textile factory in Coimbatore requires workers for various positions. Experience in textile industry preferred but not required.</p>
+              <div class="job-meta">
+                <div>Salary: ₹12,000-15,000/month</div>
+              </div>
+              <a href="/jobs/2" class="btn btn-sm">Apply Now</a>
+            </div>
+
+            <div class="job-card">
+              <h3>Agricultural Helper</h3>
+              <div class="job-meta">
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  Thanjavur
+                </div>
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  Seasonal
+                </div>
+              </div>
+              <p>Farm workers needed for rice plantation and harvesting. Accommodation provided. Seasonal work with potential for long-term employment.</p>
+              <div class="job-meta">
+                <div>Salary: ₹350-450/day + meals</div>
+              </div>
+              <a href="/jobs/3" class="btn btn-sm">Apply Now</a>
+            </div>
+
+            <div class="job-card">
+              <h3>Hotel Staff</h3>
+              <div class="job-meta">
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  Madurai
+                </div>
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  Full-time
+                </div>
+              </div>
+              <p>Popular hotel chain looking for housekeeping staff, waiters, and kitchen helpers. Previous experience in hospitality sector is a plus.</p>
+              <div class="job-meta">
+                <div>Salary: ₹10,000-18,000/month + tips</div>
+              </div>
+              <a href="/jobs/4" class="btn btn-sm">Apply Now</a>
+            </div>
+
+            <div class="job-card">
+              <h3>Security Guard</h3>
+              <div class="job-meta">
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  Chennai
+                </div>
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  Full-time
+                </div>
+              </div>
+              <p>Security guards needed for residential apartments and commercial buildings. Different shift timings available.</p>
+              <div class="job-meta">
+                <div>Salary: ₹12,000-14,000/month</div>
+              </div>
+              <a href="/jobs/5" class="btn btn-sm">Apply Now</a>
+            </div>
+
+            <div class="job-card">
+              <h3>Delivery Driver</h3>
+              <div class="job-meta">
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  Chennai
+                </div>
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  Full-time
+                </div>
+              </div>
+              <p>Food delivery drivers needed urgently. Must have two-wheeler with valid driving license. Flexible timings available.</p>
+              <div class="job-meta">
+                <div>Salary: ₹15,000-25,000/month</div>
+              </div>
+              <a href="/jobs/6" class="btn btn-sm">Apply Now</a>
+            </div>
+          </div>
+
+          <div class="pagination">
+            <a href="#" class="active">1</a>
+            <a href="#">2</a>
+            <a href="#">3</a>
+            <a href="#">Next →</a>
+          </div>
+
+          <a href="/" class="back-link">← Back to Home</a>
+        </div>
+      </div>
+    </body>
+    </html>
+  `);
+});
+
+// Government schemes page
+app.get('/schemes', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Government Schemes - TN Migrant Worker Portal</title>
+      <style>
+        body { 
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+          padding: 0; 
+          margin: 0;
+          background-image: url('https://images.unsplash.com/photo-1588097261099-b4bae4aa0ed0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80');
+          background-size: cover;
+          background-attachment: fixed;
+          background-position: center;
+          background-repeat: no-repeat;
+          line-height: 1.6;
+          color: #333;
+        }
+        .overlay {
+          background-color: rgba(255, 255, 255, 0.9);
+          min-height: 100vh;
+          padding: 20px;
+        }
+        .container { 
+          max-width: 1100px; 
+          margin: 0 auto; 
+          background: white; 
+          padding: 30px; 
+          border-radius: 12px; 
+          box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+          margin-bottom: 30px;
+        }
+        h1, h2 { 
+          color: #114B5F; 
+          text-align: center; 
+        }
+        h3 {
+          color: #028090;
+        }
+        nav { 
+          background-color: #114B5F; 
+          padding: 15px; 
+          border-radius: 8px; 
+          margin-bottom: 30px; 
+          text-align: center; 
+        }
+        nav a { 
+          color: white; 
+          text-decoration: none; 
+          margin: 0 15px; 
+          font-weight: bold; 
+          transition: color 0.3s;
+        }
+        nav a:hover {
+          color: #E4FDE1;
+        }
+        .hero { 
+          background: linear-gradient(135deg, #114B5F, #028090); 
+          color: white; 
+          padding: 40px 20px; 
+          text-align: center; 
+          border-radius: 12px; 
+          margin-bottom: 40px; 
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .btn { 
+          display: inline-block; 
+          background-color: #F45B69; 
+          color: white; 
+          padding: 12px 28px; 
+          border-radius: 50px; 
+          text-decoration: none; 
+          font-weight: bold; 
+          margin: 10px;
+          transition: all 0.3s;
+          border: none;
+          cursor: pointer;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+          background-color: #E63946;
+        }
+        .btn-primary { 
+          background-color: #028090; 
+        }
+        .btn-primary:hover {
+          background-color: #114B5F;
+        }
+        .section-title {
+          position: relative;
+          margin-bottom: 40px;
+          padding-bottom: 15px;
+        }
+        .section-title:after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 100px;
+          height: 3px;
+          background-color: #028090;
+        }
+        .search-box {
+          margin-bottom: 40px;
+          display: flex;
+          justify-content: center;
+        }
+        .search-box input {
+          padding: 12px 20px;
+          width: 60%;
+          border: 1px solid #ddd;
+          border-top-left-radius: 50px;
+          border-bottom-left-radius: 50px;
+          font-size: 1rem;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+          border-right: none;
+        }
+        .search-box button {
+          background: #028090;
+          color: white;
+          border: none;
+          padding: 0 25px;
+          border-top-right-radius: 50px;
+          border-bottom-right-radius: 50px;
+          cursor: pointer;
+          transition: background-color 0.3s;
+        }
+        .search-box button:hover {
+          background: #114B5F;
+        }
+        .filters {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 15px;
+          margin-bottom: 30px;
+          justify-content: center;
+        }
+        .filter-group {
+          display: flex;
+          align-items: center;
+          background: #f5f5f5;
+          padding: 8px 15px;
+          border-radius: 50px;
+        }
+        .filter-group label {
+          margin-right: 10px;
+          font-weight: bold;
+          color: #114B5F;
+        }
+        .filter-group select {
+          border: none;
+          background: transparent;
+          padding: 5px;
+          border-radius: 4px;
+          color: #333;
+        }
+        .scheme-list {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 20px;
+          margin-bottom: 40px;
+        }
+        .scheme-card {
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+          padding: 25px;
+          transition: transform 0.3s, box-shadow 0.3s;
+          display: flex;
+          flex-direction: column;
+          border: 1px solid #eee;
+        }
+        .scheme-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+        .scheme-card h3 {
+          margin-top: 0;
+          color: #114B5F;
+        }
+        .scheme-meta {
+          display: flex;
+          margin-bottom: 10px;
+          font-size: 0.9rem;
+          color: #666;
+        }
+        .scheme-meta > div {
+          margin-right: 15px;
+          display: flex;
+          align-items: center;
+        }
+        .scheme-meta svg {
+          margin-right: 5px;
+          height: 16px;
+          width: 16px;
+        }
+        .features {
+          margin-top: 15px;
+          margin-bottom: 20px;
+        }
+        .feature-item {
+          display: flex;
+          align-items: flex-start;
+          margin-bottom: 8px;
+        }
+        .feature-item svg {
+          margin-right: 8px;
+          flex-shrink: 0;
+          color: #028090;
+          margin-top: 3px;
+        }
+        .btn-sm {
+          padding: 8px 20px;
+          font-size: 0.9rem;
+          margin-top: auto;
+          align-self: start;
+        }
+        .pagination {
+          display: flex;
+          justify-content: center;
+          margin-top: 40px;
+          margin-bottom: 20px;
+        }
+        .pagination a {
+          display: inline-block;
+          padding: 8px 16px;
+          margin: 0 5px;
+          border-radius: 4px;
+          background: #f5f5f5;
+          color: #333;
+          text-decoration: none;
+          transition: all 0.2s;
+        }
+        .pagination a:hover, .pagination a.active {
+          background: #028090;
+          color: white;
+        }
+        .back-link { 
+          display: block; 
+          margin-top: 20px; 
+          text-align: center; 
+          color: #0369a1; 
+        }
+      </style>
+    </head>
+    <body>
+      <div class="overlay">
+        <div class="container">
+          <nav>
+            <a href="/">Home</a>
+            <a href="/jobs">Jobs</a>
+            <a href="/schemes">Gov. Schemes</a>
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+            <a href="/aadhar-verification">Aadhar Verification</a>
+          </nav>
+
+          <div class="hero">
+            <h1>Government Schemes</h1>
+            <p>Access government welfare schemes and benefits available for migrant workers</p>
+          </div>
+
+          <div class="search-box">
+            <input type="text" placeholder="Search for schemes by name, benefit, or eligibility...">
+            <button>Search</button>
+          </div>
+
+          <div class="filters">
+            <div class="filter-group">
+              <label>Provider:</label>
+              <select>
+                <option value="">All Providers</option>
+                <option value="Central">Central Government</option>
+                <option value="State">State Government</option>
+                <option value="Local">Local Bodies</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Category:</label>
+              <select>
+                <option value="">All Categories</option>
+                <option value="Housing">Housing</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Financial">Financial Assistance</option>
+                <option value="Education">Education</option>
+                <option value="Employment">Employment</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="scheme-list">
+            <div class="scheme-card">
+              <h3>PM-KISAN Scheme</h3>
+              <div class="scheme-meta">
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path></svg>
+                  Central Government
+                </div>
+              </div>
+              <p>Income support of ₹6,000 per year to all land holding farmer families in three equal installments.</p>
+              <div class="features">
+                <div class="feature-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>Financial assistance for farming families</span>
+                </div>
+                <div class="feature-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                  <span>Eligibility: Small and marginal farmers with cultivable landholding</span>
+                </div>
+              </div>
+              <a href="/schemes/1" class="btn btn-sm">Check Eligibility</a>
+            </div>
+
+            <div class="scheme-card">
+              <h3>Pradhan Mantri Awas Yojana</h3>
+              <div class="scheme-meta">
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path></svg>
+                  Central Government
+                </div>
+              </div>
+              <p>Housing scheme providing financial assistance up to ₹2.67 lakh for construction of houses for eligible families.</p>
+              <div class="features">
+                <div class="feature-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>Financial assistance for house construction</span>
+                </div>
+                <div class="feature-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                  <span>Eligibility: Households without pucca house, belonging to EWS/LIG/MIG categories</span>
+                </div>
+              </div>
+              <a href="/schemes/2" class="btn btn-sm">Check Eligibility</a>
+            </div>
+
+            <div class="scheme-card">
+              <h3>Tamil Nadu Rural Housing Scheme</h3>
+              <div class="scheme-meta">
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path></svg>
+                  State Government
+                </div>
+              </div>
+              <p>State scheme offering ₹1.8 lakh financial assistance to construct pucca houses in rural areas for eligible families.</p>
+              <div class="features">
+                <div class="feature-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>Financial assistance for rural house construction</span>
+                </div>
+                <div class="feature-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                  <span>Eligibility: Rural households without pucca house, annual income below ₹60,000</span>
+                </div>
+              </div>
+              <a href="/schemes/3" class="btn btn-sm">Check Eligibility</a>
+            </div>
+
+            <div class="scheme-card">
+              <h3>Pradhan Mantri Shram Yogi Maandhan</h3>
+              <div class="scheme-meta">
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path></svg>
+                  Central Government
+                </div>
+              </div>
+              <p>Pension scheme for unorganized workers providing assured monthly pension of ₹3,000 after age of 60.</p>
+              <div class="features">
+                <div class="feature-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>Pension benefits for unorganized workers</span>
+                </div>
+                <div class="feature-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                  <span>Eligibility: Unorganized workers aged 18-40 years with monthly income up to ₹15,000</span>
+                </div>
+              </div>
+              <a href="/schemes/4" class="btn btn-sm">Check Eligibility</a>
+            </div>
+
+            <div class="scheme-card">
+              <h3>Chief Minister Comprehensive Health Insurance Scheme</h3>
+              <div class="scheme-meta">
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path></svg>
+                  State Government
+                </div>
+              </div>
+              <p>Health insurance scheme providing coverage up to ₹5 lakhs per family per year for medical and surgical treatments.</p>
+              <div class="features">
+                <div class="feature-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>Cashless medical treatment in government and empanelled private hospitals</span>
+                </div>
+                <div class="feature-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                  <span>Eligibility: Annual family income less than ₹72,000, Tamil Nadu residents</span>
+                </div>
+              </div>
+              <a href="/schemes/5" class="btn btn-sm">Check Eligibility</a>
+            </div>
+
+            <div class="scheme-card">
+              <h3>Jeevan Jyoti Bima Yojana</h3>
+              <div class="scheme-meta">
+                <div>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path></svg>
+                  Central Government
+                </div>
+              </div>
+              <p>Life insurance scheme providing coverage of ₹2 lakh in case of death of the insured person for a nominal premium of ₹330 per annum.</p>
+              <div class="features">
+                <div class="feature-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  <span>Life insurance coverage for low-income individuals</span>
+                </div>
+                <div class="feature-item">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                  <span>Eligibility: Individuals aged 18-50 years with a bank account</span>
+                </div>
+              </div>
+              <a href="/schemes/6" class="btn btn-sm">Check Eligibility</a>
+            </div>
+          </div>
+
+          <div class="pagination">
+            <a href="#" class="active">1</a>
+            <a href="#">2</a>
+            <a href="#">Next →</a>
+          </div>
+
+          <a href="/" class="back-link">← Back to Home</a>
+        </div>
+      </div>
+    </body>
+    </html>
+  `);
+});
+
 // Aadhar Verification Page
 app.get('/aadhar-verification', (req, res) => {
   res.send(`
