@@ -569,32 +569,156 @@ app.get('/login', (req, res) => {
     <head>
       <title>Login - TN Migrant Worker Portal</title>
       <style>
-        body { font-family: Arial; padding: 20px; background-color: #f0f9ff; line-height: 1.6; }
-        .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1 { color: #0369a1; text-align: center; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        button { background: #0369a1; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; }
-        .back-link { display: block; margin-top: 20px; text-align: center; color: #0369a1; }
+        body { 
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+          padding: 0; 
+          margin: 0;
+          background-image: url('https://images.unsplash.com/photo-1588097261099-b4bae4aa0ed0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80');
+          background-size: cover;
+          background-attachment: fixed;
+          background-position: center;
+          background-repeat: no-repeat;
+          line-height: 1.6;
+          color: #333;
+        }
+        .overlay {
+          background-color: rgba(255, 255, 255, 0.9);
+          min-height: 100vh;
+          padding: 20px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        .container { 
+          max-width: 500px; 
+          width: 100%;
+          background: white; 
+          padding: 30px; 
+          border-radius: 12px; 
+          box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        h1 { 
+          color: #114B5F; 
+          text-align: center; 
+          margin-bottom: 30px;
+        }
+        .form-group { 
+          margin-bottom: 20px; 
+        }
+        label { 
+          display: block; 
+          margin-bottom: 8px; 
+          font-weight: bold;
+          color: #114B5F;
+        }
+        input { 
+          width: 100%; 
+          padding: 12px; 
+          border: 1px solid #ddd; 
+          border-radius: 8px;
+          font-size: 16px;
+          box-sizing: border-box;
+        }
+        button { 
+          background: #028090; 
+          color: white; 
+          border: none; 
+          padding: 12px 15px; 
+          border-radius: 50px; 
+          cursor: pointer;
+          width: 100%;
+          font-size: 16px;
+          font-weight: bold;
+          transition: all 0.3s;
+        }
+        button:hover {
+          background: #114B5F;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .back-link { 
+          display: block; 
+          margin-top: 20px; 
+          text-align: center; 
+          color: #028090;
+          text-decoration: none;
+        }
+        .back-link:hover {
+          text-decoration: underline;
+        }
+        .error-message {
+          background-color: #f8d7da;
+          color: #842029;
+          padding: 10px;
+          border-radius: 4px;
+          margin-bottom: 20px;
+          display: none;
+        }
+        .register-link {
+          text-align: center;
+          margin-top: 20px;
+          font-size: 0.9rem;
+        }
+        .register-link a {
+          color: #028090;
+          text-decoration: none;
+          font-weight: bold;
+        }
+        .register-link a:hover {
+          text-decoration: underline;
+        }
       </style>
     </head>
     <body>
-      <div class="container">
-        <h1>Login to Your Account</h1>
-        <form>
-          <div class="form-group">
-            <label for="email">Email Address or Worker ID</label>
-            <input type="text" id="email" placeholder="Enter your email or ID" required>
+      <div class="overlay">
+        <div class="container">
+          <h1>Login to Your Account</h1>
+          
+          <div id="errorMessage" class="error-message"></div>
+          
+          <form id="loginForm">
+            <div class="form-group">
+              <label for="email">Email Address or Worker ID</label>
+              <input type="text" id="email" name="email" placeholder="Enter your email or ID" required>
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+            <button type="submit">Login</button>
+          </form>
+          
+          <div class="register-link">
+            Don't have an account? <a href="/register">Register Now</a>
           </div>
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" placeholder="Enter your password" required>
-          </div>
-          <button type="submit">Login</button>
-        </form>
-        <a href="/" class="back-link">← Back to Home</a>
+          
+          <a href="/" class="back-link">← Back to Home</a>
+        </div>
       </div>
+      
+      <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          const email = document.getElementById('email').value;
+          const password = document.getElementById('password').value;
+          
+          // For demo purposes, let's use a simple validation
+          // In a real app, this would be replaced with an actual API call
+          if (email === 'john@example.com' && password === 'password') {
+            // Successful login - redirect to dashboard
+            window.location.href = '/worker-dashboard';
+          } else if (email === 'admin@example.com' && password === 'admin123') {
+            // Admin login
+            window.location.href = '/admin-dashboard';
+          } else {
+            // Show error message
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.style.display = 'block';
+            errorMessage.textContent = 'Invalid email/worker ID or password. Please try again.';
+          }
+        });
+      </script>
     </body>
     </html>
   `);
@@ -935,19 +1059,20 @@ app.get('/jobs', (req, res) => {
           <div class="filters">
             <div class="filter-group">
               <label>Location:</label>
-              <select>
-                <option value="">All Locations</option>
+              <select id="locationFilter">
+                <option value="all">All Locations</option>
                 <option value="Chennai">Chennai</option>
                 <option value="Coimbatore">Coimbatore</option>
                 <option value="Madurai">Madurai</option>
+                <option value="Thanjavur">Thanjavur</option>
                 <option value="Salem">Salem</option>
                 <option value="Tiruchirapalli">Tiruchirapalli</option>
               </select>
             </div>
             <div class="filter-group">
               <label>Job Type:</label>
-              <select>
-                <option value="">All Types</option>
+              <select id="typeFilter">
+                <option value="all">All Types</option>
                 <option value="Full-time">Full-time</option>
                 <option value="Part-time">Part-time</option>
                 <option value="Contract">Contract</option>
@@ -956,8 +1081,8 @@ app.get('/jobs', (req, res) => {
             </div>
             <div class="filter-group">
               <label>Salary Range:</label>
-              <select>
-                <option value="">Any Salary</option>
+              <select id="salaryFilter">
+                <option value="all">Any Salary</option>
                 <option value="0-10000">Under ₹10,000/month</option>
                 <option value="10000-15000">₹10,000 - ₹15,000/month</option>
                 <option value="15000-20000">₹15,000 - ₹20,000/month</option>
@@ -1092,6 +1217,103 @@ app.get('/jobs', (req, res) => {
           <a href="/" class="back-link">← Back to Home</a>
         </div>
       </div>
+      
+      <script>
+        // Job filtering functionality
+        document.getElementById('locationFilter').addEventListener('change', filterJobs);
+        document.getElementById('typeFilter').addEventListener('change', filterJobs);
+        document.getElementById('salaryFilter').addEventListener('change', filterJobs);
+        
+        function filterJobs() {
+          const locationFilter = document.getElementById('locationFilter').value;
+          const typeFilter = document.getElementById('typeFilter').value;
+          const salaryFilter = document.getElementById('salaryFilter').value;
+          
+          const jobCards = document.querySelectorAll('.job-list .job-card');
+          
+          jobCards.forEach(card => {
+            // Extract information from the job card
+            const jobLocation = card.querySelector('.job-meta div:first-child').textContent.trim();
+            const jobType = card.querySelector('.job-meta div:nth-child(2)').textContent.trim();
+            const jobSalary = card.querySelector('.job-meta:last-of-type').textContent.trim();
+            
+            // Check if job matches all selected filters
+            const locationMatch = locationFilter === 'all' || jobLocation.includes(locationFilter);
+            const typeMatch = typeFilter === 'all' || jobType.includes(typeFilter);
+            
+            // For salary, we need more complex logic
+            let salaryMatch = true;
+            if (salaryFilter !== 'all') {
+              // This is a simple approach - in a real app, would need more robust parsing
+              const salaryText = jobSalary.toLowerCase();
+              
+              if (salaryFilter === '0-10000' && !salaryText.includes('month')) {
+                // Daily wage jobs are typically below 10k/month
+                salaryMatch = true;
+              } else if (salaryFilter === '0-10000' && salaryText.includes('10,000')) {
+                salaryMatch = true;
+              } else if (salaryFilter === '10000-15000' && (salaryText.includes('12,000') || salaryText.includes('15,000'))) {
+                salaryMatch = true;
+              } else if (salaryFilter === '15000-20000' && salaryText.includes('18,000')) {
+                salaryMatch = true;
+              } else if (salaryFilter === '20000+' && salaryText.includes('25,000')) {
+                salaryMatch = true;
+              } else {
+                // Default logic for other cases
+                salaryMatch = salaryFilter === 'all';
+              }
+            }
+            
+            // Show or hide the job card based on filter matches
+            if (locationMatch && typeMatch && salaryMatch) {
+              card.style.display = '';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        }
+        
+        // Search functionality
+        const searchInput = document.querySelector('.search-box input');
+        const searchButton = document.querySelector('.search-box button');
+        
+        searchButton.addEventListener('click', performSearch);
+        searchInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            performSearch();
+          }
+        });
+        
+        function performSearch() {
+          const searchTerm = searchInput.value.toLowerCase().trim();
+          
+          if (searchTerm === '') {
+            // If search is empty, reset all filters and show all jobs
+            document.getElementById('locationFilter').value = 'all';
+            document.getElementById('typeFilter').value = 'all';
+            document.getElementById('salaryFilter').value = 'all';
+            filterJobs();
+            return;
+          }
+          
+          const jobCards = document.querySelectorAll('.job-list .job-card');
+          
+          jobCards.forEach(card => {
+            const jobTitle = card.querySelector('h3').textContent.toLowerCase();
+            const jobLocation = card.querySelector('.job-meta div:first-child').textContent.toLowerCase();
+            const jobDescription = card.querySelector('p').textContent.toLowerCase();
+            
+            // Check if job matches search term
+            if (jobTitle.includes(searchTerm) || 
+                jobLocation.includes(searchTerm) || 
+                jobDescription.includes(searchTerm)) {
+              card.style.display = '';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        }
+      </script>
     </body>
     </html>
   `);
@@ -2090,11 +2312,150 @@ app.post('/api/auth/register', (req, res) => {
   const stateCode = homeState ? homeState.substring(0, 2).toUpperCase() : 'TN';
   const workerId = 'TN-' + stateCode + '-23-' + Math.floor(100000 + Math.random() * 900000);
   
-  res.status(201).json({
-    success: true,
-    message: 'User registered successfully! Please verify your Aadhar to complete registration.',
-    workerId: workerId
-  });
+  // Instead of sending JSON, redirect to a registration success page
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Registration Successful - TN Migrant Worker Portal</title>
+      <style>
+        body { 
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+          padding: 0; 
+          margin: 0;
+          background-image: url('https://images.unsplash.com/photo-1588097261099-b4bae4aa0ed0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80');
+          background-size: cover;
+          background-attachment: fixed;
+          background-position: center;
+          background-repeat: no-repeat;
+          line-height: 1.6;
+          color: #333;
+        }
+        .overlay {
+          background-color: rgba(255, 255, 255, 0.9);
+          min-height: 100vh;
+          padding: 20px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        .container { 
+          max-width: 800px; 
+          margin: 0 auto; 
+          background: white; 
+          padding: 40px; 
+          border-radius: 12px; 
+          box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+          text-align: center;
+        }
+        h1 { 
+          color: #114B5F; 
+        }
+        .success-icon {
+          color: #28a745;
+          font-size: 5rem;
+          margin-bottom: 20px;
+        }
+        .worker-id-box {
+          background: #f9f9f9;
+          padding: 15px;
+          border-radius: 8px;
+          margin: 20px auto;
+          max-width: 80%;
+          border: 1px dashed #028090;
+        }
+        .worker-id {
+          color: #028090;
+          font-size: 1.5rem;
+          font-weight: bold;
+          letter-spacing: 1px;
+        }
+        .steps {
+          text-align: left;
+          max-width: 80%;
+          margin: 30px auto;
+        }
+        .step {
+          margin-bottom: 15px;
+          display: flex;
+        }
+        .step-number {
+          background: #028090;
+          color: white;
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          margin-right: 15px;
+          flex-shrink: 0;
+        }
+        .btn { 
+          display: inline-block; 
+          background-color: #028090; 
+          color: white; 
+          padding: 12px 28px; 
+          border-radius: 50px; 
+          text-decoration: none; 
+          font-weight: bold; 
+          margin: 20px 10px;
+          transition: all 0.3s;
+          border: none;
+          cursor: pointer;
+        }
+        .btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+          background-color: #114B5F;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="overlay">
+        <div class="container">
+          <div class="success-icon">✓</div>
+          <h1>Registration Successful!</h1>
+          <p>Thank you for registering with the Tamil Nadu Migrant Worker Portal, ${name}.</p>
+          
+          <div class="worker-id-box">
+            <p>Your Worker ID is:</p>
+            <div class="worker-id">${workerId}</div>
+            <p><small>Please save this ID for future reference</small></p>
+          </div>
+          
+          <div class="steps">
+            <h2>Next Steps:</h2>
+            <div class="step">
+              <div class="step-number">1</div>
+              <div>
+                <strong>Verify Your Aadhar</strong><br>
+                Please complete the Aadhar verification process to enable all features.
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">2</div>
+              <div>
+                <strong>Check Your Email</strong><br>
+                We've sent a verification link to ${email}. Please verify your email to activate your account.
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">3</div>
+              <div>
+                <strong>Complete Your Profile</strong><br>
+                Log in to your account and add more details to your profile to improve job match recommendations.
+              </div>
+            </div>
+          </div>
+          
+          <a href="/aadhar-verification" class="btn">Verify Aadhar Now</a>
+          <a href="/login" class="btn">Go to Login</a>
+        </div>
+      </div>
+    </body>
+    </html>
+  `);
 });
 
 app.post('/api/auth/verify-otp', (req, res) => {
@@ -2420,6 +2781,849 @@ app.get('/jobs/:id', (req, res) => {
           <a href="/jobs" class="back-link">← Back to job listings</a>
         </div>
       </div>
+    </body>
+    </html>
+  `);
+});
+
+// Worker Dashboard page
+app.get('/worker-dashboard', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Worker Dashboard - TN Migrant Worker Portal</title>
+      <style>
+        body { 
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+          padding: 0; 
+          margin: 0;
+          background-image: url('https://images.unsplash.com/photo-1588097261099-b4bae4aa0ed0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80');
+          background-size: cover;
+          background-attachment: fixed;
+          background-position: center;
+          background-repeat: no-repeat;
+          line-height: 1.6;
+          color: #333;
+        }
+        .overlay {
+          background-color: rgba(255, 255, 255, 0.9);
+          min-height: 100vh;
+          padding: 20px;
+        }
+        .container { 
+          max-width: 1100px; 
+          margin: 0 auto; 
+          background: white; 
+          padding: 30px; 
+          border-radius: 12px; 
+          box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+          margin-bottom: 30px;
+        }
+        h1, h2 { 
+          color: #114B5F; 
+        }
+        h3 {
+          color: #028090;
+        }
+        nav { 
+          background-color: #114B5F; 
+          padding: 15px; 
+          border-radius: 8px; 
+          margin-bottom: 30px; 
+          text-align: center; 
+        }
+        nav a { 
+          color: white; 
+          text-decoration: none; 
+          margin: 0 15px; 
+          font-weight: bold; 
+          transition: color 0.3s;
+        }
+        nav a:hover {
+          color: #E4FDE1;
+        }
+        .dashboard-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 30px;
+          flex-wrap: wrap;
+        }
+        .user-welcome {
+          display: flex;
+          align-items: center;
+        }
+        .avatar {
+          width: 60px;
+          height: 60px;
+          background-color: #028090;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-size: 24px;
+          font-weight: bold;
+          margin-right: 15px;
+        }
+        .welcome-text h2 {
+          margin: 0;
+          margin-bottom: 5px;
+        }
+        .welcome-text p {
+          margin: 0;
+          color: #666;
+        }
+        .dashboard-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 20px;
+          margin-bottom: 30px;
+        }
+        .dashboard-card {
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+          padding: 20px;
+          border: 1px solid #eee;
+          transition: all 0.3s;
+        }
+        .dashboard-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+        .card-header {
+          display: flex;
+          align-items: center;
+          margin-bottom: 15px;
+        }
+        .card-icon {
+          width: 40px;
+          height: 40px;
+          background-color: #e1f5f7;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 15px;
+        }
+        .card-icon svg {
+          width: 20px;
+          height: 20px;
+          color: #028090;
+        }
+        .card-title {
+          margin: 0;
+          font-size: 18px;
+          font-weight: bold;
+          color: #114B5F;
+        }
+        .task-list, .document-list {
+          margin-top: 20px;
+        }
+        .task-item, .document-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 10px 0;
+          border-bottom: 1px solid #eee;
+        }
+        .task-item:last-child, .document-item:last-child {
+          border-bottom: none;
+        }
+        .task-name, .document-name {
+          display: flex;
+          align-items: center;
+        }
+        .task-name svg, .document-name svg {
+          margin-right: 10px;
+          color: #028090;
+        }
+        .task-status {
+          font-size: 0.9rem;
+          padding: 3px 10px;
+          border-radius: 20px;
+        }
+        .status-pending {
+          background-color: #fff3cd;
+          color: #856404;
+        }
+        .status-progress {
+          background-color: #d1ecf1;
+          color: #0c5460;
+        }
+        .status-completed {
+          background-color: #d4edda;
+          color: #155724;
+        }
+        .document-status {
+          font-size: 0.9rem;
+          padding: 3px 10px;
+          border-radius: 20px;
+        }
+        .status-pending {
+          background-color: #fff3cd;
+          color: #856404;
+        }
+        .status-approved {
+          background-color: #d4edda;
+          color: #155724;
+        }
+        .status-rejected {
+          background-color: #f8d7da;
+          color: #721c24;
+        }
+        .quick-actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin-top: 15px;
+        }
+        .action-btn {
+          background-color: #f5f5f5;
+          color: #333;
+          border: none;
+          padding: 8px 15px;
+          border-radius: 20px;
+          cursor: pointer;
+          font-size: 0.9rem;
+          transition: all 0.3s;
+          text-decoration: none;
+          display: inline-block;
+        }
+        .action-btn:hover {
+          background-color: #e0e0e0;
+        }
+        .action-btn-primary {
+          background-color: #028090;
+          color: white;
+        }
+        .action-btn-primary:hover {
+          background-color: #114B5F;
+        }
+        .stats-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 15px;
+          margin-bottom: 30px;
+        }
+        .stat-card {
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+          padding: 20px;
+          border: 1px solid #eee;
+          flex: 1;
+          min-width: 200px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+        }
+        .stat-number {
+          font-size: 36px;
+          font-weight: bold;
+          color: #028090;
+          margin: 10px 0;
+        }
+        .stat-label {
+          color: #666;
+          font-size: 0.9rem;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="overlay">
+        <div class="container">
+          <nav>
+            <a href="/">Home</a>
+            <a href="/jobs">Jobs</a>
+            <a href="/schemes">Gov. Schemes</a>
+            <a href="/documents">My Documents</a>
+            <a href="/profile">My Profile</a>
+            <a href="/" onclick="return confirm('Are you sure you want to logout?')">Logout</a>
+          </nav>
+
+          <div class="dashboard-header">
+            <div class="user-welcome">
+              <div class="avatar">JD</div>
+              <div class="welcome-text">
+                <h2>Welcome, John Doe</h2>
+                <p>Worker ID: TN-UP-23-123456</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="stat-number">2</div>
+              <div class="stat-label">Active Tasks</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">3</div>
+              <div class="stat-label">Job Applications</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">2</div>
+              <div class="stat-label">Documents Uploaded</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">1</div>
+              <div class="stat-label">Scheme Eligibility</div>
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <div class="dashboard-card">
+              <div class="card-header">
+                <div class="card-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </div>
+                <h3 class="card-title">My Tasks</h3>
+              </div>
+              <p>Your assigned tasks and their status</p>
+              <div class="task-list">
+                <div class="task-item">
+                  <div class="task-name">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    Building Construction Work
+                  </div>
+                  <div class="task-status status-pending">Pending</div>
+                </div>
+                <div class="task-item">
+                  <div class="task-name">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    Road Repair Work
+                  </div>
+                  <div class="task-status status-progress">In Progress</div>
+                </div>
+              </div>
+              <div class="quick-actions">
+                <a href="/tasks" class="action-btn action-btn-primary">View All Tasks</a>
+              </div>
+            </div>
+
+            <div class="dashboard-card">
+              <div class="card-header">
+                <div class="card-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                </div>
+                <h3 class="card-title">My Documents</h3>
+              </div>
+              <p>Your uploaded documents and their verification status</p>
+              <div class="document-list">
+                <div class="document-item">
+                  <div class="document-name">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    Aadhar Card
+                  </div>
+                  <div class="document-status status-approved">Approved</div>
+                </div>
+                <div class="document-item">
+                  <div class="document-name">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    Work Certificate
+                  </div>
+                  <div class="document-status status-pending">Pending</div>
+                </div>
+              </div>
+              <div class="quick-actions">
+                <a href="/upload-document" class="action-btn">Upload New</a>
+                <a href="/documents" class="action-btn action-btn-primary">View All</a>
+              </div>
+            </div>
+            
+            <div class="dashboard-card">
+              <div class="card-header">
+                <div class="card-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                </div>
+                <h3 class="card-title">Quick Actions</h3>
+              </div>
+              <p>Common actions and resources you may need</p>
+              <div class="quick-actions" style="margin-top: 20px;">
+                <a href="/jobs" class="action-btn">Find Jobs</a>
+                <a href="/schemes" class="action-btn">Check Schemes</a>
+                <a href="/profile" class="action-btn">Update Profile</a>
+                <a href="/aadhar-verification" class="action-btn">Verify Aadhar</a>
+                <a href="/help" class="action-btn">Get Help</a>
+              </div>
+            </div>
+          </div>
+          
+          <h2>Recommended Jobs</h2>
+          <div class="dashboard-grid">
+            <div class="dashboard-card">
+              <div class="card-header">
+                <h3 class="card-title">Construction Worker</h3>
+              </div>
+              <p>Chennai | Full-time</p>
+              <p>We are looking for experienced construction workers for our new residential project in Chennai. Daily wages with overtime benefits.</p>
+              <div class="quick-actions">
+                <a href="/jobs/1" class="action-btn action-btn-primary">View Details</a>
+              </div>
+            </div>
+            
+            <div class="dashboard-card">
+              <div class="card-header">
+                <h3 class="card-title">Factory Worker</h3>
+              </div>
+              <p>Coimbatore | Full-time</p>
+              <p>Textile factory in Coimbatore requires workers for various positions. Experience in textile industry preferred but not required.</p>
+              <div class="quick-actions">
+                <a href="/jobs/2" class="action-btn action-btn-primary">View Details</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `);
+});
+
+// Admin Dashboard page
+app.get('/admin-dashboard', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Admin Dashboard - TN Migrant Worker Portal</title>
+      <style>
+        body { 
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+          padding: 0; 
+          margin: 0;
+          background-image: url('https://images.unsplash.com/photo-1588097261099-b4bae4aa0ed0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80');
+          background-size: cover;
+          background-attachment: fixed;
+          background-position: center;
+          background-repeat: no-repeat;
+          line-height: 1.6;
+          color: #333;
+        }
+        .overlay {
+          background-color: rgba(255, 255, 255, 0.9);
+          min-height: 100vh;
+          padding: 20px;
+        }
+        .container { 
+          max-width: 1100px; 
+          margin: 0 auto; 
+          background: white; 
+          padding: 30px; 
+          border-radius: 12px; 
+          box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+          margin-bottom: 30px;
+        }
+        h1, h2 { 
+          color: #114B5F; 
+        }
+        h3 {
+          color: #028090;
+        }
+        nav { 
+          background-color: #114B5F; 
+          padding: 15px; 
+          border-radius: 8px; 
+          margin-bottom: 30px; 
+          text-align: center; 
+        }
+        nav a { 
+          color: white; 
+          text-decoration: none; 
+          margin: 0 15px; 
+          font-weight: bold; 
+          transition: color 0.3s;
+        }
+        nav a:hover {
+          color: #E4FDE1;
+        }
+        .dashboard-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 30px;
+          flex-wrap: wrap;
+        }
+        .user-welcome {
+          display: flex;
+          align-items: center;
+        }
+        .avatar {
+          width: 60px;
+          height: 60px;
+          background-color: #028090;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-size: 24px;
+          font-weight: bold;
+          margin-right: 15px;
+        }
+        .welcome-text h2 {
+          margin: 0;
+          margin-bottom: 5px;
+        }
+        .welcome-text p {
+          margin: 0;
+          color: #666;
+        }
+        .stats-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 15px;
+          margin-bottom: 30px;
+        }
+        .stat-card {
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+          padding: 20px;
+          border: 1px solid #eee;
+          flex: 1;
+          min-width: 200px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+        }
+        .stat-number {
+          font-size: 36px;
+          font-weight: bold;
+          color: #028090;
+          margin: 10px 0;
+        }
+        .stat-label {
+          color: #666;
+          font-size: 0.9rem;
+        }
+        .worker-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 20px 0;
+          background: white;
+          border-radius: 8px;
+          overflow: hidden;
+          box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+        .worker-table th, .worker-table td {
+          padding: 15px;
+          text-align: left;
+          border-bottom: 1px solid #eee;
+        }
+        .worker-table th {
+          background-color: #f5f5f5;
+          color: #114B5F;
+          font-weight: bold;
+        }
+        .worker-table tr:hover {
+          background-color: #f9f9f9;
+        }
+        .btn { 
+          display: inline-block; 
+          background-color: #F45B69; 
+          color: white; 
+          padding: 12px 28px; 
+          border-radius: 50px; 
+          text-decoration: none; 
+          font-weight: bold; 
+          margin: 10px 0;
+          transition: all 0.3s;
+          border: none;
+          cursor: pointer;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+          background-color: #E63946;
+        }
+        .btn-primary { 
+          background-color: #028090; 
+        }
+        .btn-primary:hover {
+          background-color: #114B5F;
+        }
+        .action-btn {
+          background-color: #f5f5f5;
+          color: #333;
+          border: none;
+          padding: 8px 15px;
+          border-radius: 20px;
+          cursor: pointer;
+          font-size: 0.9rem;
+          transition: all 0.3s;
+          text-decoration: none;
+          display: inline-block;
+        }
+        .action-btn:hover {
+          background-color: #e0e0e0;
+        }
+        .action-btn-primary {
+          background-color: #028090;
+          color: white;
+        }
+        .action-btn-primary:hover {
+          background-color: #114B5F;
+        }
+        .status-badge {
+          display: inline-block;
+          padding: 5px 10px;
+          border-radius: 20px;
+          font-size: 0.8rem;
+          font-weight: 500;
+        }
+        .status-pending {
+          background-color: #fff3cd;
+          color: #856404;
+        }
+        .status-approved {
+          background-color: #d4edda;
+          color: #155724;
+        }
+        .status-rejected {
+          background-color: #f8d7da;
+          color: #721c24;
+        }
+        .btn-sm {
+          padding: 5px 10px;
+          font-size: 0.8rem;
+          border-radius: 4px;
+        }
+        .filters {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin-bottom: 20px;
+        }
+        .filter-group {
+          display: flex;
+          align-items: center;
+          background-color: #f5f5f5;
+          padding: 8px 15px;
+          border-radius: 30px;
+        }
+        .filter-group label {
+          margin-right: 10px;
+          font-weight: 500;
+          color: #114B5F;
+        }
+        .filter-group select {
+          background: transparent;
+          border: none;
+          font-family: inherit;
+          color: #333;
+          padding: 5px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="overlay">
+        <div class="container">
+          <nav>
+            <a href="/">Home</a>
+            <a href="/admin/workers">Workers</a>
+            <a href="/admin/documents">Documents</a>
+            <a href="/admin/tasks">Tasks</a>
+            <a href="/admin/reports">Reports</a>
+            <a href="/" onclick="return confirm('Are you sure you want to logout?')">Logout</a>
+          </nav>
+
+          <div class="dashboard-header">
+            <div class="user-welcome">
+              <div class="avatar">A</div>
+              <div class="welcome-text">
+                <h2>Welcome, Admin</h2>
+                <p>Admin Dashboard</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="stat-number">289</div>
+              <div class="stat-label">Total Workers</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">42</div>
+              <div class="stat-label">Pending Approvals</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">156</div>
+              <div class="stat-label">Active Tasks</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">75</div>
+              <div class="stat-label">Documents Pending</div>
+            </div>
+          </div>
+
+          <h2>Recent Worker Registrations</h2>
+          
+          <div class="filters">
+            <div class="filter-group">
+              <label>Status:</label>
+              <select id="statusFilter">
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Home State:</label>
+              <select id="stateFilter">
+                <option value="all">All States</option>
+                <option value="Bihar">Bihar</option>
+                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                <option value="West Bengal">West Bengal</option>
+                <option value="Tamil Nadu">Tamil Nadu</option>
+              </select>
+            </div>
+          </div>
+          
+          <table class="worker-table">
+            <thead>
+              <tr>
+                <th>Worker ID</th>
+                <th>Name</th>
+                <th>Home State</th>
+                <th>Registration Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>TN-UP-23-123456</td>
+                <td>John Doe</td>
+                <td>Uttar Pradesh</td>
+                <td>April 20, 2025</td>
+                <td><span class="status-badge status-approved">Approved</span></td>
+                <td>
+                  <a href="#" class="action-btn btn-sm">View</a>
+                  <a href="#" class="action-btn btn-sm action-btn-primary">Edit</a>
+                </td>
+              </tr>
+              <tr>
+                <td>TN-BR-23-123457</td>
+                <td>Raj Kumar</td>
+                <td>Bihar</td>
+                <td>May 1, 2025</td>
+                <td><span class="status-badge status-pending">Pending</span></td>
+                <td>
+                  <a href="#" class="action-btn btn-sm">View</a>
+                  <a href="#" class="action-btn btn-sm action-btn-primary">Approve</a>
+                </td>
+              </tr>
+              <tr>
+                <td>TN-WB-23-123458</td>
+                <td>Amit Sen</td>
+                <td>West Bengal</td>
+                <td>May 3, 2025</td>
+                <td><span class="status-badge status-pending">Pending</span></td>
+                <td>
+                  <a href="#" class="action-btn btn-sm">View</a>
+                  <a href="#" class="action-btn btn-sm action-btn-primary">Approve</a>
+                </td>
+              </tr>
+              <tr>
+                <td>TN-TN-23-123459</td>
+                <td>Ramesh Kumar</td>
+                <td>Tamil Nadu</td>
+                <td>May 4, 2025</td>
+                <td><span class="status-badge status-rejected">Rejected</span></td>
+                <td>
+                  <a href="#" class="action-btn btn-sm">View</a>
+                  <a href="#" class="action-btn btn-sm action-btn-primary">Reconsider</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <h2>Documents Pending Verification</h2>
+          <table class="worker-table">
+            <thead>
+              <tr>
+                <th>Document ID</th>
+                <th>Document Type</th>
+                <th>Worker ID</th>
+                <th>Submitted Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>DOC-2025-001</td>
+                <td>Work Certificate</td>
+                <td>TN-UP-23-123456</td>
+                <td>May 1, 2025</td>
+                <td><span class="status-badge status-pending">Pending</span></td>
+                <td>
+                  <a href="#" class="action-btn btn-sm">View</a>
+                  <a href="#" class="action-btn btn-sm action-btn-primary">Verify</a>
+                </td>
+              </tr>
+              <tr>
+                <td>DOC-2025-002</td>
+                <td>Aadhar Card</td>
+                <td>TN-BR-23-123457</td>
+                <td>May 2, 2025</td>
+                <td><span class="status-badge status-pending">Pending</span></td>
+                <td>
+                  <a href="#" class="action-btn btn-sm">View</a>
+                  <a href="#" class="action-btn btn-sm action-btn-primary">Verify</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <div style="margin-top: 30px; display: flex; justify-content: space-between;">
+            <a href="/admin/workers" class="btn btn-primary">Manage All Workers</a>
+            <a href="/admin/add-task" class="btn">Create New Task</a>
+          </div>
+        </div>
+      </div>
+      
+      <script>
+        // Status filter functionality
+        document.getElementById('statusFilter').addEventListener('change', function() {
+          filterTable();
+        });
+        
+        // State filter functionality
+        document.getElementById('stateFilter').addEventListener('change', function() {
+          filterTable();
+        });
+        
+        function filterTable() {
+          const statusFilter = document.getElementById('statusFilter').value;
+          const stateFilter = document.getElementById('stateFilter').value;
+          
+          const rows = document.querySelectorAll('.worker-table tbody tr');
+          
+          rows.forEach(row => {
+            const statusCell = row.querySelector('td:nth-child(5)').textContent.trim().toLowerCase();
+            const stateCell = row.querySelector('td:nth-child(3)').textContent.trim();
+            
+            const statusMatch = statusFilter === 'all' || statusCell.includes(statusFilter.toLowerCase());
+            const stateMatch = stateFilter === 'all' || stateCell === stateFilter;
+            
+            if (statusMatch && stateMatch) {
+              row.style.display = '';
+            } else {
+              row.style.display = 'none';
+            }
+          });
+        }
+      </script>
     </body>
     </html>
   `);
