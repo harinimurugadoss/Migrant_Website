@@ -568,6 +568,9 @@ app.get('/', (req, res) => {
           evt.currentTarget.classList.add("active");
         }
       </script>
+      
+      <!-- Load the chatbot script -->
+      <script src="/chatbot.js"></script>
     </body>
     </html>
   `);
@@ -688,7 +691,7 @@ app.get('/login', (req, res) => {
           
           <div id="errorMessage" class="error-message"></div>
           
-          <form id="loginForm">
+          <form id="loginForm" action="/api/auth/login" method="post">
             <div class="form-group">
               <label for="email">Email Address or Worker ID</label>
               <input type="text" id="email" name="email" placeholder="Enter your email or ID" required>
@@ -700,6 +703,12 @@ app.get('/login', (req, res) => {
             <button type="submit">Login</button>
           </form>
           
+          <div class="login-note" style="margin-top: 20px; text-align: center; font-size: 0.9rem; color: #666;">
+            <strong>For testing purposes:</strong><br>
+            Worker login: john@example.com / password<br>
+            Admin login: admin@example.com / admin123
+          </div>
+          
           <div class="register-link">
             Don't have an account? <a href="/register">Register Now</a>
           </div>
@@ -707,30 +716,6 @@ app.get('/login', (req, res) => {
           <a href="/" class="back-link">← Back to Home</a>
         </div>
       </div>
-      
-      <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-          e.preventDefault();
-          
-          const email = document.getElementById('email').value;
-          const password = document.getElementById('password').value;
-          
-          // For demo purposes, let's use a simple validation
-          // In a real app, this would be replaced with an actual API call
-          if (email === 'john@example.com' && password === 'password') {
-            // Successful login - redirect to dashboard
-            window.location.href = '/worker-dashboard';
-          } else if (email === 'admin@example.com' && password === 'admin123') {
-            // Admin login
-            window.location.href = '/admin-dashboard';
-          } else {
-            // Show error message
-            const errorMessage = document.getElementById('errorMessage');
-            errorMessage.style.display = 'block';
-            errorMessage.textContent = 'Invalid email/worker ID or password. Please try again.';
-          }
-        });
-      </script>
     </body>
     </html>
   `);
@@ -2301,16 +2286,115 @@ app.post('/api/auth/login', (req, res) => {
   
   // Simple mock authentication
   if (email === 'john@example.com' && password === 'password') {
-    res.json({
-      success: true,
-      token: 'dummy-token-for-testing',
-      user: workers[0]
-    });
+    // Redirect to worker dashboard instead of returning JSON
+    res.redirect('/worker-dashboard');
+  } else if (email === 'admin@example.com' && password === 'admin123') {
+    // Redirect to admin dashboard
+    res.redirect('/admin-dashboard');
   } else {
-    res.status(401).json({
-      success: false,
-      message: 'Invalid credentials'
-    });
+    // Return error message
+    res.status(401).send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Login Failed - TN Migrant Worker Portal</title>
+        <style>
+          body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            padding: 0; 
+            margin: 0;
+            background-image: url('https://images.unsplash.com/photo-1588097261099-b4bae4aa0ed0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            line-height: 1.6;
+            color: #333;
+          }
+          .overlay {
+            background-color: rgba(255, 255, 255, 0.9);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+          .container { 
+            max-width: 500px; 
+            width: 100%;
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-align: center;
+          }
+          h1 { 
+            color: #114B5F; 
+            text-align: center; 
+            margin-bottom: 20px;
+          }
+          .error-icon {
+            color: #F45B69;
+            font-size: 3rem;
+            margin-bottom: 20px;
+          }
+          .btn { 
+            display: inline-block; 
+            background-color: #028090; 
+            color: white; 
+            padding: 12px 28px; 
+            border-radius: 50px; 
+            text-decoration: none; 
+            font-weight: bold; 
+            margin: 20px 10px;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+          }
+          .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            background-color: #114B5F;
+          }
+          .message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+          }
+          .login-note {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 20px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="overlay">
+          <div class="container">
+            <div class="error-icon">✕</div>
+            <h1>Login Failed</h1>
+            
+            <div class="message">
+              Invalid email or password. Please try again.
+            </div>
+            
+            <p>Make sure you are using the correct credentials and try again.</p>
+            
+            <div class="login-note">
+              <strong>For testing purposes:</strong><br>
+              Worker login: john@example.com / password<br>
+              Admin login: admin@example.com / admin123
+            </div>
+            
+            <a href="/login" class="btn">Try Again</a>
+            <a href="/" class="btn">Back to Home</a>
+          </div>
+        </div>
+      </body>
+      </html>
+    `);
   }
 });
 
