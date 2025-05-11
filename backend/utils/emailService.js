@@ -1,43 +1,34 @@
-const nodemailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
 
 /**
- * Send email using nodemailer
+ * Send email using SendGrid
  * @param {Object} options - Email options including recipient, subject, and message
  */
 const sendEmail = async (options) => {
-  // Get email configurations from environment variables
-  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
-  const port = process.env.SMTP_PORT || 587;
-  const user = process.env.SMTP_USER || 'tnmigrantportal@gmail.com';
-  const pass = process.env.SMTP_PASSWORD || 'defaultpassword';
-  const from = process.env.FROM_EMAIL || 'TN Migrant Portal <tnmigrantportal@gmail.com>';
-
-  // Create transporter
-  const transporter = nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465, // true for 465, false for other ports
-    auth: {
-      user,
-      pass
-    }
-  });
-
-  // Define email options
-  const mailOptions = {
-    from,
-    to: options.email,
-    subject: options.subject,
-    text: options.message
-  };
-
-  // Send email
   try {
-    await transporter.sendMail(mailOptions);
+    // Set SendGrid API Key
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+    // Define the email
+    const msg = {
+      to: options.email,
+      from: 'noreply@tnmigrantportal.gov.in', // Use your verified sender in SendGrid
+      subject: options.subject,
+      text: options.message,
+      html: options.html || options.message.replace(/\n/g, '<br>')
+    };
+
+    // Send the email
+    await sgMail.send(msg);
     console.log(`Email sent to ${options.email}`);
+    return true;
   } catch (error) {
     console.error('Email sending failed:', error);
-    throw new Error('Email could not be sent');
+    if (error.response) {
+      console.error(error.response.body);
+    }
+    // For development, don't throw the error - return false instead
+    return false;
   }
 };
 

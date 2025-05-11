@@ -2,9 +2,21 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+// Import database connection
+const { connectDB } = require('./config/db');
 
 // Initialize Express
 const app = express();
+
+// Connect to database
+(async () => {
+  try {
+    await connectDB();
+    console.log('Database connected successfully');
+  } catch (error) {
+    console.error('Failed to connect to database:', error);
+  }
+})();
 
 // In-memory storage for OTPs and verification status
 const otpStore = {};
@@ -2302,7 +2314,7 @@ app.post('/api/auth/login', (req, res) => {
   }
 });
 
-app.post('/api/auth/register', (req, res) => {
+app.post('/api/auth/register', async (req, res) => {
   const { name, email, phone, aadhar, homeState } = req.body;
   
   // In a real app, we would save this information to a database
@@ -2311,6 +2323,65 @@ app.post('/api/auth/register', (req, res) => {
   // Generate a worker ID
   const stateCode = homeState ? homeState.substring(0, 2).toUpperCase() : 'TN';
   const workerId = 'TN-' + stateCode + '-23-' + Math.floor(100000 + Math.random() * 900000);
+  
+  // Send confirmation email
+  try {
+    const sendEmail = require('./utils/emailService');
+    
+    // Generate a verification token (this would normally be stored in the database)
+    const verificationToken = Math.random().toString(36).substring(2, 15);
+    
+    // Prepare email content
+    const emailOptions = {
+      email: email,
+      subject: 'Welcome to TN Migrant Worker Portal - Registration Successful',
+      message: `Dear ${name},
+
+Thank you for registering with the Tamil Nadu Migrant Worker Portal.
+
+Your Worker ID is: ${workerId}
+
+Please keep this ID safe as you will need it for all future interactions with our services.
+
+To complete your registration, please verify your email by clicking on the following link:
+https://tnmigrantportal.gov.in/verify-email?token=${verificationToken}
+
+If you did not register for this service, please ignore this email.
+
+Regards,
+Tamil Nadu Migrant Worker Portal Team`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <h2 style="color: #114B5F;">Welcome to TN Migrant Worker Portal</h2>
+          </div>
+          <p>Dear ${name},</p>
+          <p>Thank you for registering with the Tamil Nadu Migrant Worker Portal.</p>
+          <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center;">
+            <p style="margin: 0; font-size: 14px;">Your Worker ID is:</p>
+            <p style="font-size: 20px; font-weight: bold; color: #028090; margin: 10px 0;">${workerId}</p>
+            <p style="margin: 0; font-size: 12px;">Please keep this ID safe as you will need it for all future interactions with our services.</p>
+          </div>
+          <p>To complete your registration, please verify your email by clicking on the following button:</p>
+          <div style="text-align: center; margin: 25px 0;">
+            <a href="https://tnmigrantportal.gov.in/verify-email?token=${verificationToken}" style="background-color: #028090; color: white; padding: 12px 25px; text-decoration: none; border-radius: 25px; font-weight: bold;">Verify Email</a>
+          </div>
+          <p>If you did not register for this service, please ignore this email.</p>
+          <p>Regards,<br>Tamil Nadu Migrant Worker Portal Team</p>
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #777; text-align: center;">
+            © 2025 Tamil Nadu Migrant Worker Portal. All rights reserved.
+          </div>
+        </div>
+      `
+    };
+    
+    // Send the email
+    await sendEmail(emailOptions);
+    console.log('Registration confirmation email sent to:', email);
+  } catch (error) {
+    console.error('Failed to send registration email:', error);
+    // We'll continue with registration even if email fails
+  }
   
   // Instead of sending JSON, redirect to a registration success page
   res.send(`
