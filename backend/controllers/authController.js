@@ -60,8 +60,34 @@ exports.register = async (req, res, next) => {
     // Send OTP to user's email
     await sendEmail({
       email,
-      subject: 'Email Verification OTP - TN Migrant Worker Portal',
-      message: `Your OTP for email verification is ${otp}. This OTP is valid for 10 minutes. Please do not share this with anyone.`
+      subject: 'Welcome to TN Migrant Worker Portal - Registration Successful',
+      message: `
+Hello ${name},
+
+Welcome to the Tamil Nadu Migrant Worker Portal!
+
+Your registration details:
+- Worker ID: ${workerId}
+- Email: ${email}
+
+To complete your registration, please verify your email with this OTP: ${otp}
+This OTP is valid for 10 minutes.
+
+After verification, you can log in and:
+1. Upload your identification documents
+2. Update your profile with skills and experience
+3. Search for job opportunities
+4. Check eligibility for government schemes
+
+If you need any assistance, please contact our support team.
+
+Regards,
+TN Migrant Worker Portal Team
+      `,
+      additionalInfo: {
+        'Verification token': otp.substring(0, 10),
+        'Worker ID': workerId
+      }
     });
 
     res.status(201).json({
@@ -207,8 +233,24 @@ exports.resendOTP = async (req, res, next) => {
     // Send OTP to user's email
     await sendEmail({
       email,
-      subject: 'Email Verification OTP - TN Migrant Worker Portal',
-      message: `Your new OTP for email verification is ${otp}. This OTP is valid for 10 minutes. Please do not share this with anyone.`
+      subject: 'New Email Verification OTP - TN Migrant Worker Portal',
+      message: `
+Hello,
+
+You have requested a new OTP for your TN Migrant Worker Portal account.
+
+Your new verification code is: ${otp}
+
+This OTP is valid for 10 minutes. Please enter this code on the verification page to complete your registration.
+
+If you did not request this OTP, please ignore this email.
+
+Regards,
+TN Migrant Worker Portal Team
+      `,
+      additionalInfo: {
+        'Verification token': otp.substring(0, 10)
+      }
     });
 
     res.status(200).json({

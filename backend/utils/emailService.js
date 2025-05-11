@@ -6,10 +6,11 @@ const sgMail = require('@sendgrid/mail');
  */
 const sendEmail = async (options) => {
   try {
-    // Validate API key format
+    // Get API key and set it directly (no validation of format)
     const apiKey = process.env.SENDGRID_API_KEY;
-    if (!apiKey || !apiKey.startsWith('SG.')) {
-      console.warn('Invalid SendGrid API key format. Email will not be sent.');
+    
+    if (!apiKey) {
+      console.warn('SendGrid API key is missing. Email will not be sent.');
       console.log('Email that would have been sent:');
       console.log('To:', options.email);
       console.log('Subject:', options.subject);
@@ -37,6 +38,17 @@ const sendEmail = async (options) => {
     if (error.response) {
       console.error(error.response.body);
     }
+    
+    // For development, provide fallback by logging email content
+    console.log('=== EMAIL NOT SENT - FOR DEMONSTRATION PURPOSES ===');
+    console.log(`Registration email would have been sent to: ${options.email}`);
+    if (options.additionalInfo) {
+      Object.entries(options.additionalInfo).forEach(([key, value]) => {
+        console.log(`${key}: ${value}`);
+      });
+    }
+    console.log('=== END EMAIL DETAILS ===');
+    
     // For development, don't throw the error - return false instead
     return false;
   }
