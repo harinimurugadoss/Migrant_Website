@@ -2375,11 +2375,24 @@ Tamil Nadu Migrant Worker Portal Team`,
       `
     };
     
-    // Send the email
-    await sendEmail(emailOptions);
-    console.log('Registration confirmation email sent to:', email);
+    // Try to send the email
+    const emailSent = await sendEmail(emailOptions);
+    
+    // If the email fails to send, log the information for development/testing
+    if (!emailSent) {
+      console.log('=== EMAIL NOT SENT - FOR DEMONSTRATION PURPOSES ===');
+      console.log('Registration email would have been sent to:', email);
+      console.log('Verification token:', verificationToken);
+      console.log('Worker ID:', workerId);
+      console.log('=== END EMAIL DETAILS ===');
+    } else {
+      console.log('Registration confirmation email sent to:', email);
+    }
   } catch (error) {
     console.error('Failed to send registration email:', error);
+    console.log('=== EMAIL WOULD HAVE BEEN SENT TO ===');
+    console.log('Email:', email);
+    console.log('Worker ID:', workerId);
     // We'll continue with registration even if email fails
   }
   

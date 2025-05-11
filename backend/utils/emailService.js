@@ -6,13 +6,23 @@ const sgMail = require('@sendgrid/mail');
  */
 const sendEmail = async (options) => {
   try {
+    // Validate API key format
+    const apiKey = process.env.SENDGRID_API_KEY;
+    if (!apiKey || !apiKey.startsWith('SG.')) {
+      console.warn('Invalid SendGrid API key format. Email will not be sent.');
+      console.log('Email that would have been sent:');
+      console.log('To:', options.email);
+      console.log('Subject:', options.subject);
+      return false;
+    }
+    
     // Set SendGrid API Key
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    sgMail.setApiKey(apiKey);
 
     // Define the email
     const msg = {
       to: options.email,
-      from: 'noreply@tnmigrantportal.gov.in', // Use your verified sender in SendGrid
+      from: 'tnmigrantportal@gmail.com', // Use your verified sender in SendGrid
       subject: options.subject,
       text: options.message,
       html: options.html || options.message.replace(/\n/g, '<br>')
